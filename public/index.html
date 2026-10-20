@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#eae7df" />
+  <title>Mộc Thư — Góc đọc của riêng bạn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #292d28; --muted: #7a7d72; --bg: #f2efe9; --line: #dedcd3;
+      --green: #3f574c; --gold: #be9b62; --surface: #fffdf7;
+      --serif: 'Cormorant Garamond', 'Georgia', serif;
+      --sans: 'Be Vietnam Pro', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); font-family: var(--sans); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #c49e58; outline-offset: 3px; }
+    [hidden] { display: none !important; }
+    .icon { width: 18px; height: 18px; display: inline-block; flex-shrink: 0; }
+    .shell { width: min(1320px, calc(100% - 88px)); margin-inline: auto; }
+    .site-header { position: sticky; z-index: 50; top: 0; background: rgba(246, 243, 237, .92); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(60,65,56,.09); }
+    .header-inner { display:flex; align-items:center; justify-content:space-between; min-height:78px; gap:18px; }
+    .brand { border:0; background:none; display:flex; align-items:center; gap:13px; color:var(--ink); text-align:left; padding:0; }
+    .brand-mark { display:grid; place-items:center; width:43px; height:43px; background:var(--green); color:#f3e8d7; border-radius:12px; }
+    .brand-mark svg { width:23px; height:23px; }
+    .brand-name { display:block; font:600 25px/1 var(--serif); letter-spacing:.015em; }
+    .brand-sub { display:block; color:#818477; font-size:9px; letter-spacing:.2em; text-transform:uppercase; margin-top:4px; }
+    .head-links { display:flex; align-items:center; gap:32px; }
+    .nav-text { border:0; background:transparent; color:#5d625b; font-size:12px; font-weight:600; padding:10px 0; }
+    .nav-text:hover { color:var(--green); }
+    .nav-text.active { color:var(--green); border-bottom:2px solid var(--green); }
+    .admin-chip { display:inline-flex; align-items:center; gap:8px; border:1px solid #d2d2c7; border-radius:100px; background:#fdfcf8; padding:10px 15px; color:#505e51; font-weight:600; font-size:12px; }
+    .admin-chip:hover { border-color:var(--green); }
+    .admin-chip .icon { width:15px; height:15px; }
+    .mobile-admin { display:none; }
+    .landing { padding:54px 0 90px; }
+    .eyebrow { color:#8d805e; display:flex; align-items:center; gap:12px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.27em; }
+    .eyebrow:before { content:""; display:block; width:26px; height:1px; background:currentColor; }
+    .welcome { display:flex; justify-content:space-between; align-items:end; gap:30px; margin-top:13px; margin-bottom:42px; }
+    .welcome h1 { margin:0; font:500 clamp(50px,6.3vw,90px)/.93 var(--serif); letter-spacing:-.048em; }
+    .welcome h1 em { color:#8c976c; font-style:italic; }
+    .welcome p { max-width:310px; color:#777c70; font-size:12px; line-height:2; margin:0 0 9px; }
+    .featured { display:grid; grid-template-columns: 1fr 1.05fr; min-height:398px; overflow:hidden; background:#344d42; border-radius:7px; color:#f8f2e6; position:relative; }
+    .featured:after { content:""; position:absolute; inset:0; pointer-events:none; opacity:.14; background-image:url('data:image/svg+xml,%3Csvg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity=".22"/%3E%3C/svg%3E'); }
+    .feature-text { padding:51px 0 50px 64px; position:relative; z-index:2; display:flex; flex-direction:column; align-items:flex-start; }
+    .feature-label { display:flex; align-items:center; gap:12px; font-size:10px; letter-spacing:.25em; text-transform:uppercase; color:#ddd0b2; }
+    .feature-label:before { content:"✦"; font-size:14px; }
+    .feature-text h2 { max-width:510px; margin:35px 0 11px; font:500 clamp(42px,4.1vw,64px)/.98 var(--serif); letter-spacing:-.025em; }
+    .feature-text p { color:#d0d4c6; font-size:12px; line-height:2; margin:12px 0 25px; max-width:370px; }
+    .button-cream { background:#f3ebdb; color:#344c3f; border:0; display:flex; align-items:center; gap:16px; padding:15px 20px; border-radius:3px; font-size:12px; font-weight:700; }
+    .button-cream:hover { background:#fff; }
+    .feature-visual { position:relative; display:grid; place-items:center; min-height:380px; background:radial-gradient(ellipse at 55% 60%, #63766c 0%, transparent 66%); }
+    .feature-circles { position:absolute; width:350px; height:350px; border:1px solid rgba(242,232,206,.15); border-radius:50%; transform:translate(25px, 16px); }
+    .feature-circles:after { content:""; display:block; position:absolute; inset:30px; border:1px solid rgba(242,232,206,.13); border-radius:50%; }
+    .hero-book { --c1:#764a39; --c2:#3f2825; position:relative; width:225px; height:313px; transform:translate(0,20px) rotate(-12deg); filter:drop-shadow(33px 20px 18px rgba(11,25,21,.33)); }
+    .hero-book .cover-mock { height:100%; width:100%; }
+    .hero-book:after, .library-cover:after { content:""; position:absolute; top:2px; right:-9px; width:9px; height:calc(100% - 5px); background:repeating-linear-gradient(0deg,#d3c4a9 0px,#e7ddc9 2px,#f3e6d2 3px); transform:skewY(-15deg); box-shadow:3px 2px 4px rgba(0,0,0,.13); }
+    .shelf-header { display:flex; justify-content:space-between; align-items:center; gap:15px; margin:67px 0 25px; }
+    .shelf-header h2 { margin:5px 0 0; font:600 34px/1.1 var(--serif); }
+    .book-count { color:#7c8077; font-size:11px; }
+    .outline-btn { border:1px solid #c5c9bb; background:transparent; color:var(--green); padding:10px 16px; font-size:11px; font-weight:700; border-radius:3px; display:flex; align-items:center; gap:8px; }
+    .outline-btn:hover { background:#e8eae1; }
+    .shelf-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:26px; }
+    .book-item { min-width:0; border:1px solid #e4e1d8; padding:23px 22px 20px; border-radius:5px; background:rgba(255,255,255,.3); transition:transform .2s,box-shadow .2s; }
+    .book-item:hover { transform:translateY(-6px); box-shadow:0 14px 34px rgba(44,53,39,.10); }
+    .cover-slot { height:244px; display:grid; place-items:center; position:relative; padding-bottom:16px; }
+    .cover-slot:after { position:absolute; bottom:7px; height:12px; left:10%; right:10%; content:""; background:radial-gradient(ellipse, rgba(51,52,44,.23), transparent 68%); }
+    .library-cover { position:relative; width:145px; height:206px; filter:drop-shadow(11px 7px 9px rgba(45,44,32,.21)); transition:transform .22s; }
+    .book-item:hover .library-cover { transform:rotate(-3deg) translateY(-3px); }
+    .cover-mock { position:relative; isolation:isolate; background:linear-gradient(135deg,var(--c1,#54695b),var(--c2,#28392f)); color:#efe2c8; border-radius:2px 6px 6px 2px; padding:21px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; text-align:center; overflow:hidden; border-left:8px solid rgba(0,0,0,.20); box-shadow:inset 3px 0 5px rgba(255,255,255,.12),inset -2px 0 7px rgba(0,0,0,.24); }
+    .cover-mock:before { content:""; position:absolute; inset:11px; border:1px solid rgba(244,223,180,.37); pointer-events:none; }
+    .cover-mock:after { content:""; position:absolute; width:210px; height:210px; border-radius:50%; border:1px solid rgba(255,234,193,.17); bottom:-86px; left:50%; transform:translateX(-50%); pointer-events:none; }
+    .cover-art { height:54px; display:grid; place-items:center; opacity:.8; }
+    .cover-art svg { width:47px; height:47px; stroke-width:1; }
+    .cover-title { font:600 30px/.91 var(--serif); letter-spacing:.01em; display:block; position:relative; z-index:1; overflow-wrap:anywhere; }
+    .cover-author { font-size:9px; letter-spacing:.15em; text-transform:uppercase; opacity:.8; position:relative; z-index:1; }
+    .library-cover .cover-title { font-size:23px; }
+    .library-cover .cover-art svg { width:32px; height:32px; }
+    .library-cover .cover-art { height:33px; }
+    .library-cover .cover-mock { padding:17px; }
+    .library-cover .cover-author { font-size:7px; }
+    .book-meta { display:flex; justify-content:space-between; margin-top:14px; gap:4px; align-items:center; }
+    .book-genre { text-transform:uppercase; font-size:9px; font-weight:700; letter-spacing:.13em; color:#9e8465; }
+    .book-pages { color:#9b9c92; font-size:10px; }
+    .book-title { display:block; margin:7px 0 6px; font:600 25px/1.03 var(--serif); min-height:51px; }
+    .book-by { display:block; font-size:10px; color:#94958d; margin-bottom:16px; }
+    .read-btn { display:flex; justify-content:space-between; align-items:center; border:0; border-top:1px solid #e7e4dd; width:100%; padding:13px 0 0; background:transparent; font-size:11px; font-weight:700; color:var(--green); }
+    .read-btn:hover { color:#bd985b; }
+    .no-books { grid-column:1/-1; text-align:center; padding:45px; background:#fffdf9; border-radius:8px; }
+    .footer { border-top:1px solid var(--line); color:#a0a095; padding:25px 0; font-size:10px; display:flex; justify-content:space-between; gap:20px; }
+    /* reader */
+    body.reader-open { background:#dbdbd1; }
+    body.reader-open .site-header { background:#f1f0e9; }
+    .reader-view { --page-bg:#fffaf0; --page-text:#373b33; --page-muted:#a49b87; --reader-bg:#dcddd6; --paper-shadow:rgba(35,32,27,.26); min-height:calc(100dvh - 78px); background:var(--reader-bg); color:var(--ink); transition:background .25s; padding-bottom:35px; }
+    .reader-view[data-theme="sepia"] { --page-bg:#eee2c7; --page-text:#514936; --page-muted:#a29573; --reader-bg:#ded2b8; --paper-shadow:rgba(64,49,23,.25); }
+    .reader-view[data-theme="dark"] { --page-bg:#242a2a; --page-text:#e3e1d3; --page-muted:#859591; --reader-bg:#161c1d; --paper-shadow:rgba(0,0,0,.7); }
+    .reader-controls { max-width:1250px; margin:auto; padding:23px 30px 13px; display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+    .back-btn { display:flex; align-items:center; gap:8px; background:transparent; color:#506055; border:0; font-size:11px; font-weight:700; }
+    .reader-view[data-theme="dark"] .back-btn { color:#c6cec6; }
+    .reader-book-name { text-align:center; font:600 20px/1 var(--serif); }
+    .reader-book-by { text-align:center; color:#8b9289; font-size:9px; margin-top:7px; }
+    .read-tools { display:flex; align-items:center; justify-content:end; gap:12px; }
+    .tool-group { display:flex; align-items:center; border:1px solid rgba(110,121,107,.25); background:rgba(255,255,255,.32); border-radius:5px; overflow:hidden; }
+    .reader-view[data-theme="dark"] .tool-group { background:#333d3d; border-color:#455250; }
+    .tool-btn { border:0; background:transparent; color:#536057; padding:10px 11px; display:grid; place-items:center; font-size:11px; min-width:37px; }
+    .tool-btn:hover { background:rgba(102,116,100,.12); }
+    .reader-view[data-theme="dark"] .tool-btn { color:#d4dcd7; }
+    .tool-btn.is-active { background:#4c6456; color:white !important; }
+    .tool-btn+.tool-btn { border-left:1px solid rgba(102,116,100,.15); }
+    .brightness-wrap { display:flex; align-items:center; gap:9px; font-size:10px; color:#5b675f; padding:0 2px; }
+    .brightness-wrap .icon { width:16px; height:16px; }
+    .brightness-wrap input { width:88px; accent-color:#536c57; }
+    .reader-view[data-theme="dark"] .brightness-wrap { color:#ced6d2; }
+    .book-area { display:flex; align-items:center; justify-content:center; gap:22px; padding:10px 18px; perspective:1800px; }
+    .page-nav-side { border:1px solid rgba(101,110,99,.16); border-radius:50%; background:rgba(255,255,255,.25); color:#78837a; width:44px; height:44px; display:grid; place-items:center; flex-shrink:0; }
+    .page-nav-side:hover:not(:disabled) { background:rgba(255,255,255,.6); color:#324b3a; }
+    .page-nav-side:disabled, .flip-button:disabled { opacity:.25; cursor:not-allowed; }
+    .reader-view[data-theme="dark"] .page-nav-side { background:#2a3434; color:#e2e8e2; border-color:#465050; }
+    .book-scene { width:min(980px,calc(100vw - 155px)); position:relative; filter:brightness(var(--reader-brightness, 1)); transition:filter .2s; }
+    .book-shell { height:clamp(500px,65vh,740px); min-height:0; position:relative; display:flex; width:100%; transform-style:preserve-3d; filter:drop-shadow(0px 22px 17px var(--paper-shadow)); border-radius:3px 10px 10px 3px; background:var(--page-bg); }
+    .book-shell:after { content:""; position:absolute; inset:0 49.85% 0 auto; width:12px; pointer-events:none; z-index:3; background:linear-gradient(90deg,transparent,rgba(0,0,0,.17) 45%,rgba(255,255,255,.07) 95%,transparent); }
+    .paper { flex:1; min-width:0; width:50%; height:100%; position:relative; padding:30px clamp(26px,3.7vw,57px) 21px; background-color:var(--page-bg); color:var(--page-text); display:flex; flex-direction:column; overflow:hidden; }
+    .paper-left { background-image:linear-gradient(270deg,rgba(0,0,0,.065),transparent 9%,transparent 94%,rgba(255,255,255,.17)); border-radius:3px 0 0 3px; }
+    .paper-right { background-image:linear-gradient(90deg,rgba(0,0,0,.11),transparent 9%,transparent 94%,rgba(255,255,255,.12)); border-radius:0 5px 5px 0; }
+    .reader-view[data-theme="dark"] .paper-left { background-image:linear-gradient(270deg,rgba(0,0,0,.45),transparent 14%); }
+    .reader-view[data-theme="dark"] .paper-right { background-image:linear-gradient(90deg,rgba(0,0,0,.5),transparent 12%); }
+    .paper-running { height:38px; flex-shrink:0; display:flex; align-items:flex-start; justify-content:space-between; font:600 10px/1.3 var(--serif); letter-spacing:.12em; text-transform:uppercase; color:var(--page-muted); border-bottom:1px solid currentColor; opacity:.9; }
+    .paper-running span { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:70%; }
+    .paper-text { flex:1; min-height:0; font-size:var(--reading-size, 17px); line-height:1.83; font-family: Georgia, 'Times New Roman', serif; overflow:hidden; padding-top:20px; overflow-wrap:anywhere; }
+    .paper-text p { margin:0 0 .9em; text-indent:1em; }
+    .paper-text p:first-child { text-indent:0; }
+    .paper-text .empty-page { color:var(--page-muted); font-style:italic; margin-top:40%; text-align:center; }
+    .paper-number { height:23px; flex-shrink:0; font:600 15px/1 var(--serif); display:flex; align-items:end; justify-content:center; color:var(--page-muted); }
+    .paper-decoration { position:absolute; opacity:.08; font:180px/1 var(--serif); bottom:15px; right:35px; pointer-events:none; }
+    .page-flip { position:absolute; width:50%; height:100%; top:0; z-index:5; transform-style:preserve-3d; pointer-events:none; }
+    .page-flip.forward { left:50%; transform-origin:left center; animation:flip-forward .76s cubic-bezier(.58,.04,.29,1) forwards; }
+    .page-flip.backward { left:0%; transform-origin:right center; animation:flip-backward .76s cubic-bezier(.58,.04,.29,1) forwards; }
+    .flip-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden; }
+    .flip-face.back { transform:rotateY(180deg); }
+    .flip-face .paper { width:100%; height:100%; }
+    .page-flip.forward .front { box-shadow:inset 15px 0 18px rgba(0,0,0,.1); }
+    .page-flip.backward .front { box-shadow:inset -15px 0 18px rgba(0,0,0,.1); }
+    @keyframes flip-forward { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(-180deg)} }
+    @keyframes flip-backward { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(180deg)} }
+    .reader-bottom { max-width:1100px; margin:21px auto 0; padding:0 35px; display:flex; justify-content:center; align-items:center; gap:18px; }
+    .flip-button { display:flex; align-items:center; gap:8px; background:transparent; border:0; font-size:11px; font-weight:700; color:#657667; white-space:nowrap; }
+    .reader-view[data-theme="dark"] .flip-button { color:#cdd8ce; }
+    .progress-track { width:min(420px,42vw); accent-color:#657e65; }
+    .page-status { white-space:nowrap; font-size:10px; color:#859084; min-width:76px; text-align:center; }
+    .reader-view[data-theme="dark"] .page-status { color:#b4c0b7; }
+    .reader-hint { text-align:center; margin:17px auto 0; font-size:10px; color:#a2a8a0; }
+    .reader-view[data-theme="dark"] .reader-hint { color:#798782; }
+    .measure-text { position:fixed; top:-100000px; left:-100000px; visibility:hidden; pointer-events:none; overflow:visible; font-family:Georgia,'Times New Roman',serif; line-height:1.83; overflow-wrap:anywhere; }
+    .measure-text p { margin:0 0 .9em; text-indent:1em; }
+    .measure-text p:first-child { text-indent:0; }
+    /* modal */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(21,30,25,.55); backdrop-filter:blur(5px); display:grid; place-items:center; z-index:100; padding:20px; }
+    .modal { width:min(440px,100%); max-height:calc(100dvh - 30px); overflow:auto; background:#faf8f2; color:#32382f; border-radius:9px; box-shadow:0 25px 90px rgba(0,0,0,.26); padding:30px; }
+    .modal.wide { width:min(840px,100%); }
+    .modal-top { display:flex; justify-content:space-between; align-items:start; gap:15px; }
+    .modal h2 { font:600 39px/1 var(--serif); margin:0 0 9px; }
+    .modal-subtitle { margin:0 0 26px; font-size:12px; line-height:1.8; color:#7a8176; }
+    .close-btn { border:0; background:transparent; color:#768477; font-size:25px; padding:0; line-height:1; }
+    .field { display:flex; flex-direction:column; gap:7px; margin-bottom:15px; }
+    .field label { font-size:10px; text-transform:uppercase; font-weight:700; letter-spacing:.13em; color:#5e6c60; }
+    .field input, .field textarea, .field select { width:100%; padding:11px 13px; border-radius:4px; border:1px solid #d5dacf; background:#fff; color:#2b332c; font-size:13px; }
+    .field textarea { min-height:270px; resize:vertical; line-height:1.75; }
+    .field small { font-size:10px; color:#96998b; }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:17px; }
+    .solid-btn { width:100%; border:0; background:#435d4d; color:white; padding:14px 18px; border-radius:4px; font-weight:700; font-size:12px; }
+    .solid-btn:hover { background:#2e4436; }
+    .error { color:#aa493d; font-size:11px; margin:-4px 0 13px; }
+    .admin-menu-btn { width:100%; display:flex; justify-content:space-between; align-items:center; padding:15px 4px; background:transparent; border:0; border-bottom:1px solid #e2e4da; font-size:13px; font-weight:600; color:#4c624f; text-align:left; }
+    .admin-menu-btn:hover { color:#b08c56; }
+    .admin-note { font-size:11px; color:#99998e; line-height:1.7; }
+    .palette { display:flex; gap:10px; flex-wrap:wrap; }
+    .palette-option { height:38px; width:38px; border-radius:50%; border:3px solid white; outline:1px solid #d7d7d0; }
+    .palette-option.selected { outline:2px solid #3c5946; }
+    .modal-actions { display:flex; gap:11px; margin-top:12px; }
+    .modal-actions .solid-btn { flex:1; }
+    .danger-btn { border:1px solid #c89182; color:#a85040; background:transparent; border-radius:4px; padding:12px 18px; font-size:11px; font-weight:700; }
+    .danger-btn:hover { background:#fff0ec; }
+    .admin-floating { position:fixed; bottom:24px; right:24px; z-index:20; background:#48634f; border:0; border-radius:50%; width:52px; height:52px; display:grid; place-items:center; color:white; box-shadow:0 8px 24px rgba(0,0,0,.23); }
+    .toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(40px); opacity:0; transition:opacity .2s,transform .2s; background:#294638; color:white; border-radius:6px; padding:13px 19px; box-shadow:0 9px 30px rgba(0,0,0,.2); font-size:12px; z-index:150; pointer-events:none; text-align:center; max-width:calc(100vw - 28px); }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    @media (max-width:1100px) { .shelf-grid{grid-template-columns:repeat(3,minmax(0,1fr))} .welcome h1{font-size:68px} .book-area{gap:9px} .book-scene{width:min(980px,calc(100vw - 120px))} .paper{padding-inline:29px;} }
+    @media (max-width:760px) {
+      .shell { width:calc(100% - 36px); }
+      .site-header .header-inner{min-height:65px} .brand-mark{width:39px;height:39px} .brand-name{font-size:23px}
+      .head-links{gap:11px} .head-links .nav-text{display:none} .admin-chip{padding:9px 11px}
+      .landing{padding-top:38px} .welcome{display:block;margin-bottom:30px} .welcome h1{font-size:clamp(49px,11vw,70px)} .welcome p{max-width:500px;margin-top:20px}
+      .featured{grid-template-columns:1fr; min-height:610px} .feature-text{padding:39px 33px 5px} .feature-text h2{font-size:55px;margin-top:22px}.feature-text p{margin:6px 0 20px}
+      .feature-visual{min-height:250px}.hero-book{width:154px;height:222px;transform:translate(0,0) rotate(-12deg)}.hero-book .cover-title{font-size:23px}
+      .feature-circles{width:260px;height:260px} .shelf-header{margin-top:45px}.shelf-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.book-item{padding:12px}
+      .cover-slot{height:213px}.library-cover{width:121px;height:178px} .book-title{font-size:22px;min-height:43px}.book-by{font-size:9px}
+      .reader-controls{display:grid;grid-template-columns:1fr auto;gap:15px 8px;padding:14px 17px 10px}.reader-title-block{grid-column:1/-1;grid-row:2}.back-btn{justify-self:start}.read-tools{gap:6px}
+      .brightness-wrap{gap:4px} .brightness-wrap .icon{display:none} .brightness-wrap input{width:50px} .tool-btn{padding:8px 8px;min-width:30px}.reader-book-name{font-size:18px}.reader-book-by{margin-top:3px}
+      .book-area{gap:5px;padding:8px 9px}.page-nav-side{width:28px;height:38px;border-radius:6px}.page-nav-side .icon{width:16px}
+      .book-scene{width:min(510px,calc(100vw - 86px))}.book-shell{height:clamp(440px,calc(100dvh - 245px),700px)}
+      .paper{width:100%;padding:25px clamp(23px,6vw,45px) 17px}.paper-right{display:none}.paper-left{border-radius:4px}.book-shell:after{display:none}
+      .page-flip{width:100%}.page-flip.forward,.page-flip.backward{left:0}.page-flip .paper{display:flex}
+      .paper-text{padding-top:16px;line-height:1.78}.reader-bottom{gap:7px;padding:0 11px;margin-top:13px}.progress-track{width:29vw}.page-status{min-width:58px}.flip-button{font-size:10px}.reader-hint{padding:0 20px}
+    }
+    @media (max-width:760px) { .admin-floating { display:none !important; } }
+    @media (max-width:420px) { .cover-slot{height:182px}.library-cover{width:103px;height:150px}.library-cover .cover-mock{padding:12px}.library-cover .cover-title{font-size:18px}.library-cover .cover-author{font-size:6px}.book-genre{font-size:8px}.book-pages{font-size:9px}.book-title{font-size:20px}.field-row{grid-template-columns:1fr;gap:0}.featured{min-height:610px}.reader-controls{padding-inline:8px}.tool-btn{min-width:26px;padding:7px}.book-scene{width:calc(100vw - 72px)}.paper{padding-inline:21px}.reader-hint{font-size:9px}.modal{padding:20px} }
+    @media (prefers-reduced-motion:reduce) { *{scroll-behavior:auto !important;transition:none !important;} .page-flip.forward,.page-flip.backward{animation-duration:.05s;} }
+  </style>
+</head>
+<body>
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner shell">
+      <button class="brand" id="homeBrand" aria-label="Về thư viện">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1Z"/><path d="M12 5v14"/></svg></span>
+        <span><span class="brand-name">mộc thư.</span><span class="brand-sub">a little reading corner</span></span>
+      </button>
+      <nav class="head-links" aria-label="Điều hướng chính">
+        <button class="nav-text active" id="libraryNav">Thư viện</button>
+        <button class="nav-text" id="continueNav">Đọc tiếp</button>
+        <button class="admin-chip" id="adminButton"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21v-2a7.5 7.5 0 0 1 15 0v2"/></svg><span id="adminButtonText">Đăng nhập Admin</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="landing shell" id="libraryView">
+    <div class="eyebrow">Một không gian dành cho những câu chuyện</div>
+    <section class="welcome"><h1>Chạm vào trang sách.<br/><em>Lạc vào thế giới.</em></h1><p>Nơi mỗi câu chữ đều có thời gian để thở. Chọn một cuốn sách, thả mình vào những trang giấy và đọc theo cách bạn thích.</p></section>
+    <section class="featured" aria-label="Sách nổi bật">
+      <div class="feature-text"><span class="feature-label">Lời mời từ thư viện</span><h2 id="featuredTitle">Một hành trình bắt đầu từ trang đầu tiên.</h2><p id="featuredDesc">Khám phá câu chuyện đang chờ bạn, từng trang một.</p><button class="button-cream" id="featuredRead">Bắt đầu đọc <span aria-hidden="true">↗</span></button></div>
+      <div class="feature-visual"><div class="feature-circles"></div><div class="hero-book" id="featuredCover"></div></div>
+    </section>
+    <div class="shelf-header"><div><div class="eyebrow">Tủ sách riêng</div><h2>Những cuốn sách của bạn</h2></div><div style="display:flex;gap:14px;align-items:center"><span class="book-count" id="bookCount"></span><button class="outline-btn" id="newBookTop" hidden><span aria-hidden="true">＋</span> Thêm sách</button></div></div>
+    <section class="shelf-grid" id="booksGrid" aria-label="Danh sách sách"></section>
+  </main>
+
+  <main class="reader-view" id="readerView" data-theme="light" hidden>
+    <div class="reader-controls">
+      <button class="back-btn" id="backToShelf"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 18-6-6 6-6"/></svg> Thư viện</button>
+      <div class="reader-title-block"><div class="reader-book-name" id="readerBookTitle"></div><div class="reader-book-by" id="readerBookAuthor"></div></div>
+      <div class="read-tools">
+        <div class="tool-group" aria-label="Màu nền đọc">
+          <button class="tool-btn is-active" data-theme-choice="light" title="Nền sáng" aria-label="Nền sáng">☀</button>
+          <button class="tool-btn" data-theme-choice="sepia" title="Nền giấy ấm" aria-label="Nền giấy ấm">◐</button>
+          <button class="tool-btn" data-theme-choice="dark" title="Chế độ tối" aria-label="Chế độ tối">☾</button>
+        </div>
+        <div class="tool-group" aria-label="Cỡ chữ"><button class="tool-btn" id="smallerFont" title="Giảm cỡ chữ">A−</button><button class="tool-btn" id="biggerFont" title="Tăng cỡ chữ">A+</button></div>
+        <label class="brightness-wrap" title="Giảm độ sáng trang giấy"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><input id="brightnessRange" type="range" min="45" max="100" value="100" aria-label="Độ sáng trang giấy" /></label>
+      </div>
+    </div>
+    <div class="book-area">
+      <button class="page-nav-side" id="prevSide" aria-label="Trang trước"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div class="book-scene" id="bookScene"><div class="book-shell" id="bookShell"><div class="paper paper-left" id="leftPaper"><div class="paper-running"><span></span><span>✧</span></div><div class="paper-text"></div><div class="paper-number"></div></div><div class="paper paper-right" id="rightPaper"><div class="paper-running"><span></span><span>✧</span></div><div class="paper-text"></div><div class="paper-number"></div></div></div></div>
+      <button class="page-nav-side" id="nextSide" aria-label="Trang sau"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+    <div class="reader-bottom"><button class="flip-button" id="prevPage">← Trang trước</button><input class="progress-track" id="progressRange" type="range" value="0" min="0" max="0" aria-label="Vị trí đọc"/><span class="page-status" id="pageStatus"></span><button class="flip-button" id="nextPage">Trang sau →</button></div>
+    <div class="reader-hint">Nhấn phím ← → hoặc chạm vào nút hai bên để lật trang · Vị trí đọc được lưu tự động</div>
+  </main>
+
+  <footer class="footer shell" id="siteFooter"><span>© Mộc Thư — Một chốn bình yên giữa những con chữ.</span><span>Made for stories, made for you ✦</span></footer>
+  <button class="admin-floating" id="editCurrent" title="Chỉnh sửa cuốn sách" hidden aria-label="Chỉnh sửa cuốn sách"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4L16.5 3.5Z"/></svg></button>
+  <div class="modal-backdrop" id="modalBackdrop" hidden><div class="modal" id="modalContainer" role="dialog" aria-modal="true" aria-labelledby="modalHeading"></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="measure-text" id="measureText" aria-hidden="true"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const KEYS = { books: 'mocthu-books-v1', progress: 'mocthu-progress-v1', prefs: 'mocthu-prefs-v1' };
+  const THEMES = { light:'Sáng', sepia:'Giấy ấm', dark:'Tối' };
+  const COVERS = [
+    ['#526e5e','#263f35'], ['#804a3b','#442b2a'], ['#475c75','#253347'],
+    ['#9b805c','#59482f'], ['#7b6679','#3a354b'], ['#506568','#213b3f'],
+  ];
+  const SAMPLE_ONE = `Chương 1 — Buổi sáng không còn tiếng người\n\nBuổi sáng đến rất chậm. Ánh nắng len qua những tán cây cao, vẽ những vệt vàng nhạt trên mặt đất ẩm. Không có còi xe, không có lời rao hàng và cũng chẳng có âm thanh nào của thành phố mà họ từng biết. Chỉ còn tiếng gió, tiếng chim và một khoảng im lặng sâu đến mức có thể nghe rõ nhịp tim của chính mình.\n\nDanh là người đầu tiên tỉnh dậy. Anh chống tay ngồi dậy, đưa mắt tìm quán cà phê, con đường, những tòa nhà quen thuộc. Nhưng ở nơi từng có các dãy phố chỉ là những rặng cây xanh vươn dài tới tận chân trời. Anh dụi mắt, nghĩ rằng mình còn đang mơ.\n\nNhật xuất hiện từ bên kia bụi cỏ, tay vẫn nắm chặt chiếc điện thoại không có sóng. "Tao vừa quay thử một đoạn video," cậu nói, giọng khàn đi. "Nhưng tao không biết gửi cho ai nữa."\n\nAnh Thuận cúi xuống kiểm tra một mảnh kim loại nhặt được gần bờ suối. Anh xoay nó trong tay, suy nghĩ rất lâu rồi bảo: "Nếu đây là tất cả những gì chúng ta còn có, vậy thì phải bắt đầu từ những thứ nhỏ nhất."\n\nAnh Phùng không nói gì. Anh đang nhìn hướng nắng, hình dung ra một mái nhà, một khoảng sân, một nơi trú ẩn nằm cao hơn dòng nước. Trong đầu anh, những bản vẽ vô hình bắt đầu xuất hiện.\n\nChẳng ai biết vì sao thế giới thay đổi. Nhưng cả bốn đều biết một điều: trước khi tìm được câu trả lời, họ phải sống qua đêm nay.\n\nChương 2 — Ngọn lửa đầu tiên\n\nBuổi chiều, họ đi men theo dòng suối. Nhật dùng điện thoại ghi lại từng dấu mốc, cho đến khi biểu tượng pin đỏ xuất hiện. Cậu nhìn nó, buồn cười một cách cay đắng: cả đời chỉnh sửa video, vậy mà giờ đây thứ quý nhất lại là vài phần trăm pin còn lại.\n\nDanh lựa những chiếc lá có mùi thơm, nhưng nhất quyết không nếm một loại cây nào chưa biết rõ. Anh đun nước trong một chiếc hộp kim loại mà Thuận tìm được. Nước sôi sùng sục, bốc lên mùi hơi ấm quen thuộc. Anh bảo: "Hôm nay không có cà phê, nhưng ít ra vẫn có nước nóng." Mọi người bật cười.\n\nThuận dựng một bếp nhỏ chắn gió từ đá và đất. Những kinh nghiệm về nhiệt, lực, vật liệu mà anh tích lũy qua nhiều năm bất ngờ trở thành thứ ngôn ngữ thiết thực nhất. Anh không có máy móc; anh có đôi tay, nguyên lý và sự kiên nhẫn.\n\nPhùng dùng các nhánh cây đánh dấu nền đất bằng phẳng. Anh tránh những vùng có dấu hiệu ngập, đặt mái trú theo chiều gió và chọn vị trí có thể quan sát con suối nhưng đủ xa để an toàn khi mưa lớn.\n\nKhi bóng tối kéo xuống, ngọn lửa đầu tiên bừng lên. Họ ngồi thành vòng tròn, im lặng nhìn than đỏ. Đó không phải một thành phố, không phải một ngôi nhà, thậm chí chưa phải một căn lều. Nhưng lần đầu tiên từ lúc tỉnh dậy, bốn người có một nơi để quay về.\n\nChương 3 — Bản đồ bằng trí nhớ\n\nNhật bắt đầu giữ một cuốn nhật ký. Khi điện thoại tắt nguồn, cậu lấy than vẽ lại con suối, các gốc cây lớn và đường mặt trời đi qua bầu trời. Công việc của một editor đã dạy cậu nhìn những chi tiết vụn vặt như các khung hình của một câu chuyện dài hơn.\n\nDanh chia công việc thành các ca ngắn, ghi nhớ những loại hạt, những nguồn nước sạch và thời gian từng loại thức ăn có thể bảo quản. Thuận thử làm dây từ sợi thực vật và gia cố bộ khung trú. Phùng phác thảo một căn nhà nhỏ với mái dốc, nền nâng cao và lối thoát nước quanh chân cột.\n\nMỗi ngày, họ làm thêm một việc tưởng như rất nhỏ. Và rồi, như những trang sách nối nhau, những việc nhỏ ấy bắt đầu tạo thành một cuộc đời mới.\n\nCó lẽ một ngày nào đó họ sẽ hiểu điều gì đã xảy ra. Nhưng vào buổi sáng thứ mười, khi nhìn thấy làn khói mảnh bay thẳng lên trời, Danh chợt nhận ra: nhân loại có thể đã biến mất, song khả năng bắt đầu lại vẫn ở đây, ngay trong bốn con người đang nhóm lửa.`;
+  const SAMPLE_TWO = `Lời mở đầu\n\nCó những ngày thế giới ngoài kia đi quá nhanh, còn trái tim ta lại muốn sống thật chậm. Ta ngồi bên cửa sổ, nghe tiếng mưa len qua hiên nhà và nhận ra rằng mọi câu chuyện đẹp đều cần một khoảng lặng.\n\nMột tách trà bốc khói. Một chiếc ghế cũ. Một trang giấy được lật lên bằng đầu ngón tay. Không có phép màu lớn lao nào xuất hiện, chỉ có cảm giác mọi thứ bỗng trở nên đủ đầy.\n\nBài học thứ nhất — Chậm lại\n\nBạn không cần hiểu hết một cuốn sách trong một đêm. Đôi khi, chỉ một câu văn cũng đủ để đi theo bạn qua nhiều ngày. Hãy cho mình quyền đọc lại, quyền bỏ qua những đoạn chưa hiểu và quyền dừng lại ở một trang mình yêu thích.\n\nĐọc sách không phải cuộc đua về số lượng. Điều đáng quý là những gì ta mang theo khi khép cuốn sách. Một ý tưởng vừa nảy mầm, một ký ức được đánh thức, một câu hỏi tốt hơn những câu trả lời cũ.\n\nBài học thứ hai — Lắng nghe\n\nKhi đọc về cuộc đời của người khác, ta được trao cơ hội nhìn thế giới bằng đôi mắt không phải của mình. Những điều xa lạ trở nên gần gũi. Những nỗi buồn tưởng riêng mình hóa ra cũng từng đi qua trái tim của biết bao người.\n\nMột cuốn sách tốt không nhất thiết khiến ta đồng ý. Đôi khi nó khiến ta ngừng lại để suy nghĩ. Và chính khoảnh khắc ấy, việc đọc đã làm được điều quan trọng nhất.\n\nBài học thứ ba — Mang một câu chuyện về nhà\n\nHãy giữ lại một câu văn khiến bạn mỉm cười. Hãy ghi chú điều làm bạn tò mò. Hãy kể cho ai đó nghe câu chuyện bạn vừa đi qua, bằng giọng nói của chính mình.\n\nMột cuốn sách chỉ thật sự kết thúc khi nó không còn có thể chạm vào cuộc đời ta nữa. Còn nếu ở đâu đó trong bạn vẫn có một ý nghĩ được nó thắp sáng, câu chuyện ấy vẫn đang tiếp diễn.`;
+  const SAMPLE_THREE = `Chương 1 — Những vì sao trên sân thượng\n\nTối hôm ấy, thành phố mất điện. Tất cả những ô cửa sổ sáng rực thường ngày bỗng tắt, khiến bầu trời lộ ra những đốm sao mà lâu nay mọi người đã quên mất.\n\nLinh đặt một chiếc ghế gỗ lên sân thượng. Bên cạnh cô là cuốn sổ chưa viết hết, một cây bút chì ngắn và chiếc đèn pin nhỏ. Cô định ghi lại tên những ngôi sao, rồi cuối cùng chỉ viết một câu: "Mình đã quên mất bầu trời rộng đến thế nào."\n\nTừ tầng dưới vọng lên tiếng ai đó gọi nhau. Một đứa trẻ reo lên khi nhìn thấy vệt sáng lướt ngang trời. Mọi người, lần đầu tiên sau rất nhiều tháng, không cúi nhìn màn hình.\n\nChương 2 — Bức thư chưa gửi\n\nSáng hôm sau, điện trở lại. Những cửa hiệu mở cửa, xe cộ lấp đầy con đường, điện thoại rung không ngừng. Nhưng Linh vẫn giữ cuốn sổ ở trên bàn, nơi ánh sáng buổi sớm chạm vào trang giấy.\n\nCô viết một bức thư cho tương lai. Không phải lời hứa trở thành ai đó phi thường, chỉ là vài điều nhỏ: dành thời gian cho người mình thương, nhìn bầu trời mỗi khi có thể và đừng để một ngày trôi qua mà không thật sự sống trong nó.\n\nCô gấp lá thư lại, đặt vào trang cuối của cuốn sổ. Ngoài cửa sổ, thành phố vẫn vội vàng. Nhưng lần này, cô biết mình có thể chọn nhịp điệu của riêng mình.`;
+  const SEED = [
+    {id:'seed-dawn',title:'Sau Ngày Nhân Loại',author:'Mộc Thư',genre:'Viễn tưởng',description:'Bốn con người thức dậy giữa một thế giới không còn dấu chân văn minh. Và hành trình bắt đầu lại từ những điều nhỏ nhất.',content:SAMPLE_ONE,cover:1},
+    {id:'seed-quiet',title:'Đọc Thật Chậm',author:'Mộc Thư',genre:'Tản văn',description:'Vài trang nhỏ để ngồi lại, hít thở sâu và nhớ rằng đọc sách không phải một cuộc đua.',content:SAMPLE_TWO,cover:0},
+    {id:'seed-stars',title:'Khi Đèn Thành Phố Tắt',author:'Mộc Thư',genre:'Truyện ngắn',description:'Một đêm mất điện, một bầu trời sao và lá thư gửi cho chính mình của ngày mai.',content:SAMPLE_THREE,cover:2},
+  ];
+  function readJSON(key, fallback) { try { const raw=localStorage.getItem(key); return raw===null?fallback:JSON.parse(raw); } catch { return fallback; } }
+  const state = {
+    serverMode:true, books: [], progress: readJSON(KEYS.progress, {}),
+    prefs: {...{theme:'light',font:17,brightness:100},...readJSON(KEYS.prefs,{})},
+    admin:false, currentId:null, pages:[], pageIndex:0, flipping:false, editingId:null,
+  };
+  if (!Array.isArray(state.books)) state.books = structuredClone(SEED);
+  const escapeHTML = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  async function initializeServerMode() {
+    // Vercel edition: always use the shared database; never silently switch to browser-only data.
+    try {
+      const [sessionResp,booksResp]=await Promise.all([
+        fetch('/api/session',{credentials:'same-origin',cache:'no-store'}),
+        fetch('/api/books',{credentials:'same-origin',cache:'no-store'})
+      ]);
+      if (!sessionResp.ok || !booksResp.ok) {
+        const data=await booksResp.json().catch(()=>({}));
+        throw Error(data.error || 'Không thể kết nối API/database');
+      }
+      const [session,data]=await Promise.all([sessionResp.json(),booksResp.json()]);
+      if (!session.server||!Array.isArray(data.books)) throw Error('Dữ liệu máy chủ không hợp lệ');
+      state.admin=Boolean(session.admin); state.books=data.books;
+      renderLibrary();
+    } catch(e) {
+      state.admin=false; state.books=[];
+      renderLibrary();
+      toast('Lỗi tải thư viện chung: '+e.message);
+      $('#bookCount').textContent='Không kết nối được database';
+    }
+  }
+  async function persistBooks(nextBooks) {
+    if (state.serverMode) {
+      try {
+        const response=await fetch('/api/books',{method:'PUT',credentials:'same-origin',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({books:nextBooks})});
+        const data=await response.json();
+        if(!response.ok)throw Error(data.error||'Không thể lưu sách');
+        state.books=data.books;return true;
+      } catch(e){toast('Không thể lưu trên máy chủ: '+e.message);return false;}
+    }
+    if(!save(KEYS.books,nextBooks))return false;
+    state.books=nextBooks;return true;
+  }
+  const bookById = id => state.books.find(b=>b.id===id);
+  const isMobile = () => window.matchMedia('(max-width:760px)').matches;
+  const step = () => isMobile()?1:2;
+  function save(key,value) { try { localStorage.setItem(key,JSON.stringify(value)); return true; } catch { toast('Bộ nhớ trình duyệt đã đầy. Hãy xuất bản sao sách ra file JSON.'); return false; } }
+  let toastTimer;
+  function toast(message) { const el=$('#toast'); el.textContent=message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2900); }
+  function coverHTML(book) {
+    const [c1,c2]=COVERS[Number(book.cover)%COVERS.length]||COVERS[0];
+    return `<div class="cover-mock" style="--c1:${c1};--c2:${c2};height:100%"><div class="cover-art"><svg viewBox="0 0 54 54" fill="none" stroke="currentColor"><path d="M27 6v42M6 27h42M12 12l30 30M42 12L12 42" opacity=".38"/><circle cx="27" cy="27" r="14"/><path d="M27 15c-5 6-6 18 0 24 6-6 5-18 0-24Z"/><circle cx="27" cy="27" r="5"/></svg></div><span class="cover-title">${escapeHTML(book.title)}</span><span class="cover-author">${escapeHTML(book.author||'Khuyết danh')}</span></div>`;
+  }
+  function bookTeaserPages(book) { return Math.max(1,Math.ceil((book.content||'').length/800)); }
+  function renderLibrary() {
+    const featured=state.books[0];
+    $('#bookCount').textContent=`${state.books.length} cuốn sách`;
+    $('#newBookTop').hidden=!state.admin;
+    if (featured) {
+      $('#featuredTitle').textContent=featured.title;
+      $('#featuredDesc').textContent=featured.description||'Một câu chuyện đang chờ bạn khám phá từng trang.';
+      $('#featuredRead').hidden=false;
+      $('#featuredCover').innerHTML=coverHTML(featured);
+      $('#featuredCover').style.setProperty('--c1',COVERS[Number(featured.cover)%COVERS.length]?.[0]||COVERS[0][0]);
+    } else {
+      $('#featuredTitle').textContent='Mỗi cuốn sách đều bắt đầu bằng một trang trắng.';
+      $('#featuredDesc').textContent='Đăng nhập tài khoản admin để tạo cuốn sách đầu tiên của bạn.';
+      $('#featuredRead').hidden=true;
+      $('#featuredCover').innerHTML='';
+    }
+    $('#booksGrid').innerHTML=state.books.length ? state.books.map(book=>`
+      <article class="book-item"><div class="cover-slot"><div class="library-cover">${coverHTML(book)}</div></div>
+      <div class="book-meta"><span class="book-genre">${escapeHTML(book.genre||'Sách')}</span><span class="book-pages">~${bookTeaserPages(book)} trang</span></div>
+      <span class="book-title">${escapeHTML(book.title)}</span><span class="book-by">${escapeHTML(book.author||'Khuyết danh')}</span>
+      <button class="read-btn" data-open-id="${escapeHTML(book.id)}">${state.progress[book.id]>0?'Đọc tiếp':'Mở sách'} <span>↗</span></button></article>`).join('')
+      : `<div class="no-books"><h2>Thư viện còn trống</h2><p>Đăng nhập admin và tạo cuốn sách đầu tiên nhé.</p></div>`;
+    $('#adminButtonText').textContent=state.admin?'Quản lý Admin':'Đăng nhập Admin';
+  }
+  function showLibrary() {
+    state.flipping=false; $('#readerView').hidden=true; $('#libraryView').hidden=false; $('#siteFooter').hidden=false;
+    $('#editCurrent').hidden=true; document.body.classList.remove('reader-open');
+    $('#libraryNav').classList.add('active'); $('#continueNav').classList.remove('active');
+    renderLibrary(); window.scrollTo({top:0,behavior:'instant'});
+  }
+  function applyPrefs() {
+    if (!THEMES[state.prefs.theme]) state.prefs.theme='light';
+    state.prefs.font=Math.min(23,Math.max(14,Number(state.prefs.font)||17));
+    state.prefs.brightness=Math.min(100,Math.max(45,Number(state.prefs.brightness)||100));
+    $('#readerView').dataset.theme=state.prefs.theme;
+    $('#bookScene').style.setProperty('--reader-brightness',state.prefs.brightness/100);
+    $('#readerView').style.setProperty('--reading-size',state.prefs.font+'px');
+    $('#brightnessRange').value=state.prefs.brightness;
+    $$('[data-theme-choice]').forEach(el=>el.classList.toggle('is-active',el.dataset.themeChoice===state.prefs.theme));
+    save(KEYS.prefs,state.prefs);
+  }
+  function openBook(id) {
+    const book=bookById(id); if (!book) return;
+    state.currentId=id; state.flipping=false;
+    $('#libraryView').hidden=true; $('#readerView').hidden=false; $('#siteFooter').hidden=true; document.body.classList.add('reader-open');
+    $('#libraryNav').classList.remove('active'); $('#continueNav').classList.add('active');
+    $('#readerBookTitle').textContent=book.title; $('#readerBookAuthor').textContent=book.author||'Khuyết danh';
+    $('#editCurrent').hidden=!state.admin; applyPrefs();
+    requestAnimationFrame(()=>{ repaginate(true); window.scrollTo({top:0,behavior:'instant'}); });
+  }
+  function normalizeParagraphs(content) {
+    const raw=String(content||'').replace(/\r\n?/g,'\n').trim();
+    if (!raw) return ['Cuốn sách này chưa có nội dung.'];
+    return raw.split(/\n\s*\n/).map(v=>v.replace(/\n/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
+  }
+  function fits(paras, width, maxHeight, fontSize) {
+    const el=$('#measureText'); el.style.width=width+'px'; el.style.fontSize=fontSize+'px';
+    el.replaceChildren(...paras.map(t=>{const p=document.createElement('p');p.textContent=t;return p;}));
+    return el.scrollHeight<=maxHeight+1;
+  }
+  function paginate(content) {
+    const target=$('#leftPaper .paper-text'); const rect=target.getBoundingClientRect();
+    const width=Math.max(175,rect.width), maxHeight=Math.max(180,rect.height-20), fontSize=state.prefs.font;
+    let pages=[], current=[];
+    const emit=()=>{ if(current.length){pages.push(current);current=[];} };
+    const paras=normalizeParagraphs(content);
+    for (const para of paras) {
+      if (fits([...current,para],width,maxHeight,fontSize)) { current.push(para); continue; }
+      emit();
+      if (fits([para],width,maxHeight,fontSize)) { current.push(para); continue; }
+      let words=para.split(/\s+/);
+      while (words.length) {
+        let lo=1,hi=words.length,best=1;
+        while(lo<=hi) { const mid=Math.floor((lo+hi)/2); const text=words.slice(0,mid).join(' ');
+          if(fits([text],width,maxHeight,fontSize)) {best=mid;lo=mid+1;} else hi=mid-1;
+        }
+        current.push(words.slice(0,best).join(' ')); words=words.slice(best); emit();
+      }
+    }
+    emit();
+    return pages.length?pages:[['Cuốn sách này chưa có nội dung.']];
+  }
+  function paperHTML(paragraphs,number,side) {
+    const b=bookById(state.currentId);
+    const content=(paragraphs||[]).map(p=>`<p>${escapeHTML(p)}</p>`).join('')||'<p class="empty-page">Hết.</p>';
+    return `<div class="paper paper-${side}"><div class="paper-running"><span>${escapeHTML(b?.title||'')}</span><span>✧</span></div><div class="paper-text">${content}</div><div class="paper-number">${number<state.pages.length?number+1:''}</div></div>`;
+  }
+  function fillPaper(root, idx, side) {
+    const p=state.pages[idx]||[]; root.className='paper paper-'+side;
+    root.innerHTML=`<div class="paper-running"><span>${escapeHTML(bookById(state.currentId)?.title||'')}</span><span>✧</span></div><div class="paper-text">${p.length?p.map(x=>`<p>${escapeHTML(x)}</p>`).join(''):'<p class="empty-page">Hết.</p>'}</div><div class="paper-number">${idx<state.pages.length?idx+1:''}</div>`;
+  }
+  function normalizeIndex(index) { const max=Math.max(0,state.pages.length-1); return Math.floor(Math.max(0,Math.min(max,index))/step())*step(); }
+  function renderSpread() {
+    fillPaper($('#leftPaper'),state.pageIndex,'left'); fillPaper($('#rightPaper'),state.pageIndex+1,'right');
+    const end=Math.min(state.pageIndex+step(),state.pages.length);
+    $('#pageStatus').textContent=`${state.pageIndex+1}${end>state.pageIndex+1?'–'+end:''} / ${state.pages.length}`;
+    $('#progressRange').max=Math.max(0,Math.ceil(state.pages.length/step())-1);
+    $('#progressRange').value=Math.floor(state.pageIndex/step());
+    const disabledPrev=state.pageIndex<=0, disabledNext=state.pageIndex+step()>=state.pages.length;
+    ['#prevSide','#prevPage'].forEach(x=>$(x).disabled=disabledPrev);
+    ['#nextSide','#nextPage'].forEach(x=>$(x).disabled=disabledNext);
+  }
+  function repaginate(restore) {
+    const b=bookById(state.currentId); if(!b||$('#readerView').hidden) return;
+    const oldPage=restore?(state.progress[state.currentId]||0):state.pageIndex;
+    state.pages=paginate(b.content); state.pageIndex=normalizeIndex(oldPage); renderSpread();
+  }
+  function rememberProgress() { if (!state.currentId) return; state.progress[state.currentId]=state.pageIndex; save(KEYS.progress,state.progress); }
+  function turn(direction) {
+    if (state.flipping || $('#readerView').hidden) return;
+    const old=state.pageIndex, next=old+direction*step();
+    if (next<0||next>=state.pages.length) return;
+    state.flipping=true;
+    const mobile=isMobile(); const scene=$('#bookShell');
+    let front,back,frontSide,backSide;
+    if (direction>0) {
+      front=mobile?old:old+1;back=next;frontSide=mobile?'left':'right';backSide='left';
+      if(mobile) fillPaper($('#leftPaper'),next,'left');
+      else fillPaper($('#rightPaper'),next+1,'right');
+    } else {
+      front=old;back=mobile?next:next+1;frontSide='left';backSide=mobile?'left':'right';
+      if(mobile) fillPaper($('#leftPaper'),next,'left');
+      else fillPaper($('#leftPaper'),next,'left');
+    }
+    const flip=document.createElement('div'); flip.className='page-flip '+(direction>0?'forward':'backward');
+    flip.innerHTML=`<div class="flip-face front">${paperHTML(state.pages[front],front,frontSide)}</div><div class="flip-face back">${paperHTML(state.pages[back],back,backSide)}</div>`;
+    scene.appendChild(flip);
+    const complete=()=>{ if(!state.flipping)return; flip.remove();state.pageIndex=next;state.flipping=false;renderSpread();rememberProgress(); };
+    flip.addEventListener('animationend',complete,{once:true});
+    // Safari/reduced-motion fallback if animationend is skipped.
+    setTimeout(complete,1000);
+  }
+  function jumpSpread(n) { if(state.flipping)return; state.pageIndex=normalizeIndex(Number(n)*step());renderSpread();rememberProgress(); }
+  function openModal(html,wide=false) { $('#modalContainer').classList.toggle('wide',wide);$('#modalContainer').innerHTML=html;$('#modalBackdrop').hidden=false;setTimeout(()=>$('#modalContainer input:not([type=file]),#modalContainer textarea,#modalContainer button').focus(),20); }
+  function closeModal() {$('#modalBackdrop').hidden=true;$('#modalContainer').innerHTML='';}
+  function modalHeader(title,subtitle) {return `<div class="modal-top"><div><h2 id="modalHeading">${title}</h2><p class="modal-subtitle">${subtitle}</p></div><button class="close-btn" data-close aria-label="Đóng">×</button></div>`;}
+  function loginModal() {
+    openModal(modalHeader('Xin chào, Admin.','Đăng nhập để thêm sách, sửa nội dung và quản lý thư viện.')+
+      `<form id="loginForm"><div class="field"><label for="adminUser">Tài khoản</label><input id="adminUser" autocomplete="username" required placeholder="Tên đăng nhập" /></div><div class="field"><label for="adminPass">Mật khẩu</label><input id="adminPass" type="password" autocomplete="current-password" required placeholder="Mật khẩu" /></div><div class="error" id="loginError" hidden>Tài khoản hoặc mật khẩu không đúng.</div><button class="solid-btn" type="submit">Đăng nhập →</button></form>`);
+  }
+  function adminModal() {
+    openModal(modalHeader('Quản trị thư viện','Tạo, chỉnh sửa và sao lưu nội dung trong thư viện của bạn.')+
+      `<button class="admin-menu-btn" id="adminCreate">＋ Tạo cuốn sách mới <span>↗</span></button>
+       <button class="admin-menu-btn" id="adminEdit">✎ Chỉnh sửa sách đang đọc <span>↗</span></button>
+       <button class="admin-menu-btn" id="adminExport">⇩ Xuất toàn bộ sách (JSON) <span>↗</span></button>
+       <button class="admin-menu-btn" id="adminImport">⇧ Nhập sách từ file JSON <span>↗</span></button>
+       <button class="admin-menu-btn" id="adminLogout">↪ Đăng xuất <span>↗</span></button>
+       <input id="importFile" type="file" accept="application/json,.json" hidden />
+       <p class="admin-note" style="margin-top:22px">${state.serverMode?'Sách được lưu trên máy chủ và đồng bộ cho người đọc. Vị trí đọc và giao diện vẫn lưu trong trình duyệt.':'Dữ liệu sách được lưu vào Neon Postgres trên máy chủ.'}</p>`);
+    $('#adminEdit').disabled=!state.currentId || $('#readerView').hidden;
+    $('#adminEdit').style.opacity=$('#adminEdit').disabled?.35:1;
+  }
+  function editorModal(id=null) {
+    if(!state.admin) return loginModal();
+    state.editingId=id; const b=id?bookById(id):null;
+    const palette=COVERS.map((c,i)=>`<button type="button" class="palette-option ${Number(b?.cover||0)===i?'selected':''}" data-cover="${i}" style="background:linear-gradient(135deg,${c[0]},${c[1]})" title="Màu bìa ${i+1}" aria-label="Màu bìa ${i+1}"></button>`).join('');
+    openModal(modalHeader(b?'Chỉnh sửa cuốn sách':'Tạo một cuốn sách','Dán nội dung dài vào ô văn bản; trang sách sẽ tự chia theo kích thước màn hình.')+
+      `<form id="editorForm"><div class="field-row"><div class="field"><label for="bookTitle">Tên sách *</label><input id="bookTitle" maxlength="120" required value="${escapeHTML(b?.title||'')}" placeholder="Tên câu chuyện" /></div><div class="field"><label for="bookAuthor">Tác giả</label><input id="bookAuthor" maxlength="100" value="${escapeHTML(b?.author||'')}" placeholder="Tên tác giả" /></div></div>
+      <div class="field-row"><div class="field"><label for="bookGenre">Thể loại</label><input id="bookGenre" maxlength="50" value="${escapeHTML(b?.genre||'')}" placeholder="Viễn tưởng, tản văn..." /></div><div class="field"><label for="bookDescription">Giới thiệu ngắn</label><input id="bookDescription" maxlength="220" value="${escapeHTML(b?.description||'')}" placeholder="Một dòng giới thiệu..." /></div></div>
+      <div class="field"><label>Màu bìa</label><div class="palette" id="coverPalette" data-selected="${Number(b?.cover)||0}">${palette}</div></div>
+      <div class="field"><label for="bookContent">Nội dung sách *</label><textarea id="bookContent" required placeholder="Dán toàn bộ văn bản tại đây...">${escapeHTML(b?.content||'')}</textarea><small>Ngắt đoạn bằng một dòng trống. Hỗ trợ Unicode và tiếng Việt.</small></div>
+      <div class="modal-actions">${b?'<button class="danger-btn" id="deleteBook" type="button">Xóa sách</button>':''}<button class="solid-btn" type="submit">${b?'Lưu thay đổi':'Tạo cuốn sách'} →</button></div></form>`,true);
+  }
+  async function saveBookFromEditor() {
+    if(!state.admin)return;
+    const title=$('#bookTitle').value.trim(), content=$('#bookContent').value.trim();
+    if(!title||!content){toast('Cần nhập tên sách và nội dung.');return;}
+    const existing=state.editingId?bookById(state.editingId):null;
+    const book={id:existing?.id||('b'+Date.now()+'-'+Math.random().toString(36).slice(2,6)),title,content,
+      author:$('#bookAuthor').value.trim()||'Khuyết danh',genre:$('#bookGenre').value.trim()||'Sách',
+      description:$('#bookDescription').value.trim(),cover:Number($('#coverPalette').dataset.selected)||0};
+    let newBooks=state.books.slice();
+    if(existing) newBooks=newBooks.map(b=>b.id===existing.id?book:b);
+    else newBooks.unshift(book);
+    if(!await persistBooks(newBooks))return;
+    closeModal();renderLibrary();toast(existing?'Đã lưu thay đổi!':'Đã tạo cuốn sách mới!');openBook(book.id);
+    // When a book is edited, begin again at the first page to avoid stale positioning.
+    if(existing){state.progress[book.id]=0;save(KEYS.progress,state.progress);state.pageIndex=0;requestAnimationFrame(()=>repaginate(false));}
+  }
+  async function deleteBook(id) {
+    if(!state.admin)return;
+    if(!confirm('Xóa cuốn sách này khỏi thư viện trên trình duyệt?'))return;
+    const next=state.books.filter(b=>b.id!==id); if(!await persistBooks(next))return;
+    delete state.progress[id];save(KEYS.progress,state.progress);
+    if(state.currentId===id){state.currentId=null;showLibrary();}
+    closeModal();renderLibrary();toast('Đã xóa cuốn sách.');
+  }
+  function exportBooks() {
+    const blob=new Blob([JSON.stringify({format:'mocthu-v1',books:state.books,progress:state.progress},null,2)],{type:'application/json;charset=utf-8'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='moc-thu-sao-luu.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Đã xuất bản sao thư viện.');
+  }
+  async function importBooks(file) {
+    if(!state.admin||!file)return;
+    try {
+      const data=JSON.parse(await file.text());const raw=Array.isArray(data)?data:data.books;
+      if(!Array.isArray(raw)||!raw.every(x=>x&&typeof x.title==='string'&&typeof x.content==='string'))throw Error('bad');
+      const books=raw.slice(0,500).map((b,i)=>({id:String(b.id||('import-'+Date.now()+'-'+i)),title:b.title.slice(0,120),author:String(b.author||'Khuyết danh').slice(0,100),genre:String(b.genre||'Sách').slice(0,50),description:String(b.description||'').slice(0,220),cover:Math.min(5,Math.max(0,Number(b.cover)||0)),content:b.content}));
+      if(!confirm(`Nhập ${books.length} cuốn sách và thay thế thư viện hiện tại? Hãy xuất bản sao trước nếu cần.`))return;
+      if(!await persistBooks(books))return;
+      state.progress={};save(KEYS.progress,{});state.currentId=null;closeModal();showLibrary();toast(`Đã nhập ${books.length} cuốn sách.`);
+    } catch {toast('Không đọc được file JSON của thư viện.');}
+  }
+  // navigation & delegations
+  $('#homeBrand').addEventListener('click',showLibrary);$('#libraryNav').addEventListener('click',showLibrary);$('#backToShelf').addEventListener('click',showLibrary);
+  $('#featuredRead').addEventListener('click',()=>state.books[0]&&openBook(state.books[0].id));
+  $('#continueNav').addEventListener('click',()=>{const id=state.currentId&&bookById(state.currentId)?state.currentId:state.books.find(b=>state.progress[b.id]>0)?.id||state.books[0]?.id; if(id)openBook(id);else toast('Thư viện chưa có sách.');});
+  $('#booksGrid').addEventListener('click',e=>{const id=e.target.closest('[data-open-id]')?.dataset.openId;if(id)openBook(id);});
+  $('#adminButton').addEventListener('click',()=>state.admin?adminModal():loginModal());
+  $('#newBookTop').addEventListener('click',()=>editorModal());$('#editCurrent').addEventListener('click',()=>editorModal(state.currentId));
+  ['#prevSide','#prevPage'].forEach(s=>$(s).addEventListener('click',()=>turn(-1)));
+  ['#nextSide','#nextPage'].forEach(s=>$(s).addEventListener('click',()=>turn(1)));
+  $('#progressRange').addEventListener('input',e=>jumpSpread(e.target.value));
+  $$('[data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>{state.prefs.theme=btn.dataset.themeChoice;applyPrefs();}));
+  $('#brightnessRange').addEventListener('input',e=>{state.prefs.brightness=+e.target.value;applyPrefs();});
+  $('#smallerFont').addEventListener('click',()=>{state.prefs.font=Math.max(14,state.prefs.font-1);applyPrefs();repaginate(false);rememberProgress();});
+  $('#biggerFont').addEventListener('click',()=>{state.prefs.font=Math.min(23,state.prefs.font+1);applyPrefs();repaginate(false);rememberProgress();});
+  $('#modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop'||e.target.closest('[data-close]'))closeModal();});
+  $('#modalBackdrop').addEventListener('submit',async e=>{
+    if(e.target.id==='loginForm') {
+      e.preventDefault();let valid=false;
+      const username=$('#adminUser').value,password=$('#adminPass').value;
+      if(state.serverMode) {
+        try {
+          const response=await fetch('/api/login',{method:'POST',credentials:'same-origin',
+            headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+          valid=response.ok;
+        } catch {toast('Không thể kết nối máy chủ.');return;}
+      } else valid=false;
+      if(valid){state.admin=true;closeModal();renderLibrary();$('#editCurrent').hidden=!state.currentId||$('#readerView').hidden;toast('Đã đăng nhập tài khoản admin.');}
+      else $('#loginError').hidden=false;
+    }
+    if(e.target.id==='editorForm'){e.preventDefault();await saveBookFromEditor();}
+  });
+  $('#modalBackdrop').addEventListener('click',async e=>{
+    const target=e.target.closest('button');if(!target)return;
+    if(target.matches('[data-cover]')) {$('#coverPalette').dataset.selected=target.dataset.cover;$$('.palette-option').forEach(x=>x.classList.toggle('selected',x===target));}
+    if(target.id==='adminCreate')editorModal();
+    if(target.id==='adminEdit'&&state.currentId)editorModal(state.currentId);
+    if(target.id==='adminExport')exportBooks();
+    if(target.id==='adminImport')$('#importFile')?.click();
+    if(target.id==='adminLogout') {
+      if(state.serverMode) {
+        try { const r=await fetch('/api/logout',{method:'POST',credentials:'same-origin'});if(!r.ok)throw Error(); }
+        catch {toast('Không thể đăng xuất trên máy chủ.');return;}
+      }
+      state.admin=false;closeModal();renderLibrary();$('#editCurrent').hidden=true;toast('Đã đăng xuất.');
+    }
+    if(target.id==='deleteBook'&&state.editingId)deleteBook(state.editingId);
+  });
+  $('#modalBackdrop').addEventListener('change',e=>{if(e.target.id==='importFile')importBooks(e.target.files?.[0]);});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&!$('#modalBackdrop').hidden){closeModal();return;}
+    if(!$('#modalBackdrop').hidden||$('#readerView').hidden||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
+    if(e.key==='ArrowRight'){e.preventDefault();turn(1);}if(e.key==='ArrowLeft'){e.preventDefault();turn(-1);}
+  });
+  let resizeTimer,lastMobile=isMobile();
+  window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!$('#readerView').hidden&&!state.flipping){const changed=lastMobile!==isMobile();lastMobile=isMobile();repaginate(changed?true:false);}},180);});
+  renderLibrary();initializeServerMode();
+})();
+</script>
+</body>
+</html>

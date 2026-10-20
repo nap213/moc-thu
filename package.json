@@ -1,0 +1,13 @@
+{
+  "name": "mocthu-vercel",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mộc Thư with Vercel Functions and Neon Postgres",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0"
+  }
+}
