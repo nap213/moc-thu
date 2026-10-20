@@ -210,6 +210,27 @@
     @media (max-width:760px) { .admin-floating { display:none !important; } }
     @media (max-width:420px) { .cover-slot{height:182px}.library-cover{width:103px;height:150px}.library-cover .cover-mock{padding:12px}.library-cover .cover-title{font-size:18px}.library-cover .cover-author{font-size:6px}.book-genre{font-size:8px}.book-pages{font-size:9px}.book-title{font-size:20px}.field-row{grid-template-columns:1fr;gap:0}.featured{min-height:610px}.reader-controls{padding-inline:8px}.tool-btn{min-width:26px;padding:7px}.book-scene{width:calc(100vw - 72px)}.paper{padding-inline:21px}.reader-hint{font-size:9px}.modal{padding:20px} }
     @media (prefers-reduced-motion:reduce) { *{scroll-behavior:auto !important;transition:none !important;} .page-flip.forward,.page-flip.backward{animation-duration:.05s;} }
+    
+/* FIX FONT TIẾNG VIỆT CHO MỘC THƯ */
+:root {
+  --serif: 'Literata', Georgia, serif;
+}
+
+.paper-text,
+.measure-text {
+  font-family: var(--serif);
+  letter-spacing: normal;
+  word-spacing: normal;
+  font-kerning: normal;
+  font-variant-ligatures: normal;
+  text-rendering: optimizeLegibility;
+  overflow-wrap: break-word;
+}
+
+.paper-running {
+  letter-spacing: normal;
+}
+
   </style>
 </head>
 <body>
@@ -390,8 +411,10 @@
     $('#editCurrent').hidden=!state.admin; applyPrefs();
     requestAnimationFrame(()=>{ repaginate(true); window.scrollTo({top:0,behavior:'instant'}); });
   }
-  function normalizeParagraphs(content) {
-    const raw=String(content||'').replace(/\r\n?/g,'\n').trim();
+  function normalizeParagraphs(content) { 
+  const raw = normalizeVN(content)
+  .replace(/\r\n?/g, '\n')
+  .trim();
     if (!raw) return ['Cuốn sách này chưa có nội dung.'];
     return raw.split(/\n\s*\n/).map(v=>v.replace(/\n/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
   }
@@ -505,7 +528,15 @@
   }
   async function saveBookFromEditor() {
     if(!state.admin)return;
-    const title=$('#bookTitle').value.trim(), content=$('#bookContent').value.trim();
+    
+const title = normalizeVN(
+  $('#bookTitle').value
+).trim();
+
+const content = normalizeVN(
+  $('#bookContent').value
+).trim();
+
     if(!title||!content){toast('Cần nhập tên sách và nội dung.');return;}
     const existing=state.editingId?bookById(state.editingId):null;
     const book={id:existing?.id||('b'+Date.now()+'-'+Math.random().toString(36).slice(2,6)),title,content,
@@ -598,7 +629,11 @@
   let resizeTimer,lastMobile=isMobile();
   window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!$('#readerView').hidden&&!state.flipping){const changed=lastMobile!==isMobile();lastMobile=isMobile();repaginate(changed?true:false);}},180);});
   renderLibrary();initializeServerMode();
-})();
+})(); 
+function normalizeVN(text) {
+  return String(text ?? "").normalize("NFC");
+}
+
 </script>
 </body>
 </html>
