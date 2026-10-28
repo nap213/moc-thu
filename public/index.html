@@ -25,6 +25,12 @@
     .icon { width: 18px; height: 18px; display: inline-block; flex-shrink: 0; }
     .shell { width: min(1320px, calc(100% - 88px)); margin-inline: auto; }
     .site-header { position: sticky; z-index: 50; top: 0; background: rgba(246, 243, 237, .92); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(60,65,56,.09); }
+    /* Khi kéo trang xuống trên điện thoại, header trượt ra ngoài màn hình.
+       Chỉ transform nên không làm dồn/giãn lại nội dung sách. */
+    @media (max-width:760px) {
+      .site-header { transition:transform .23s ease; }
+      .site-header.header-hidden { transform:translate3d(0,-105%,0); pointer-events:none; }
+    }
     .header-inner { display:flex; align-items:center; justify-content:space-between; min-height:78px; gap:18px; }
     .brand { border:0; background:none; display:flex; align-items:center; gap:13px; color:var(--ink); text-align:left; padding:0; }
     .brand-mark { display:grid; place-items:center; width:43px; height:43px; background:var(--green); color:#f3e8d7; border-radius:12px; }
@@ -241,6 +247,16 @@
     }
     @media (max-width:760px) { .admin-floating { display:none !important; } }
     @media (max-width:420px) { .cover-slot{height:182px}.library-cover{width:103px;height:150px}.library-cover .cover-mock{padding:12px}.library-cover .cover-title{font-size:18px}.library-cover .cover-author{font-size:6px}.book-genre{font-size:8px}.book-pages{font-size:9px}.book-title{font-size:20px}.field-row{grid-template-columns:1fr;gap:0}.featured{min-height:610px}.reader-controls{padding-inline:8px}.tool-btn{min-width:26px;padding:7px}.book-scene{width:calc(100vw - 16px)}.book-shell{height:clamp(500px,calc(100dvh - 205px),720px)}.paper{padding-inline:21px}.modal{padding:20px} }
+    /* Mobile: 100svh là chiều cao vùng nhìn thấy NHỎ NHẤT, không co giãn
+       theo việc Safari/Chrome thu gọn hay hiện lại thanh địa chỉ.
+       100vh là fallback cho trình duyệt cũ. */
+    @media (max-width:760px) {
+      .reader-view { min-height:calc(100svh - 65px); }
+      .book-shell {
+        height:clamp(540px,calc(100vh - 125px),780px);
+        height:clamp(540px,calc(100svh - 125px),780px);
+      }
+    }
     @media (prefers-reduced-motion:reduce) { *{scroll-behavior:auto !important;transition:none !important;} .page-flip.forward,.page-flip.backward{animation-duration:.05s;} }
   </style>
 </head>
@@ -860,8 +876,63 @@
     if(!$('#modalBackdrop').hidden||$('#readerView').hidden||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
     if(e.key==='ArrowRight'){e.preventDefault();turn(1);}if(e.key==='ArrowLeft'){e.preventDefault();turn(-1);}
   });
-  let resizeTimer,lastMobile=isMobile();
-  window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(!$('#readerView').hidden&&!state.flipping){const changed=lastMobile!==isMobile();lastMobile=isMobile();repaginate(changed?true:false);}},180);});
+  // iPhone Safari thường phát resize khi thanh địa chỉ / thanh công cụ tự ẩn.
+  // Khi đó độ rộng không đổi, và tuyệt đối KHÔNG chia lại trang sách.
+  // Chỉ paginate lại khi độ rộng/breakpoint đổi (ví dụ xoay ngang điện thoại),
+  // hoặc thay đổi kích thước cửa sổ trên desktop.
+  let resizeTimer;
+  let lastMobile = isMobile();
+  let lastLayoutWidth = document.documentElement.clientWidth;
+  let lastDesktopHeight = window.innerHeight;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const mobile = isMobile();
+      const width = document.documentElement.clientWidth;
+      const widthChanged = Math.abs(width - lastLayoutWidth) >= 2;
+      const breakpointChanged = mobile !== lastMobile;
+      const desktopHeightChanged = !mobile && Math.abs(window.innerHeight - lastDesktopHeight) >= 2;
+      lastMobile = mobile;
+      lastLayoutWidth = width;
+      lastDesktopHeight = window.innerHeight;
+      if ($('#readerView').hidden || state.flipping) return;
+      if (breakpointChanged || widthChanged || desktopHeightChanged) {
+        repaginate(breakpointChanged);
+      }
+    }, 200);
+  });
+
+  // Mobile: khi kéo xuống thì ẩn header, kéo lên thì hiện lại.
+  // Dùng bộ lọc delta để tránh chớp tắt do những dao động cuộn rất nhỏ.
+  const header = $('#siteHeader');
+  const mobileHeaderMedia = window.matchMedia('(max-width:760px)');
+  let lastScrollY = Math.max(0, window.scrollY);
+  let scrollDistance = 0;
+  let scrollDirection = 0;
+  function updateReaderHeader() {
+    const y = Math.max(0, window.scrollY);
+    const delta = y - lastScrollY;
+    lastScrollY = y;
+    if (!mobileHeaderMedia.matches || y < 65 || !$('#modalBackdrop').hidden) {
+      header.classList.remove('header-hidden');
+      scrollDistance = 0;
+      scrollDirection = 0;
+      return;
+    }
+    if (Math.abs(delta) < 2) return;
+    const direction = Math.sign(delta);
+    if (direction !== scrollDirection) {
+      scrollDirection = direction;
+      scrollDistance = 0;
+    }
+    scrollDistance += Math.abs(delta);
+    if (scrollDistance >= 20) {
+      header.classList.toggle('header-hidden', direction > 0);
+      scrollDistance = 0;
+    }
+  }
+  window.addEventListener('scroll', updateReaderHeader, {passive:true});
+  mobileHeaderMedia.addEventListener('change', updateReaderHeader);
   renderLibrary();initializeServerMode();
 })();
 </script>
