@@ -148,14 +148,18 @@
     .page-flip.backward .front { box-shadow:inset -15px 0 18px rgba(0,0,0,.1); }
     @keyframes flip-forward { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(-180deg)} }
     @keyframes flip-backward { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(180deg)} }
-    .reader-bottom { max-width:1100px; margin:21px auto 0; padding:0 35px; display:flex; justify-content:center; align-items:center; gap:18px; }
+    .reader-bottom { max-width:1100px; margin:21px auto 0; padding:0 35px; display:flex; justify-content:center; align-items:center; gap:24px; }
+    .page-jump { display:flex; align-items:center; gap:9px; color:#778779; font-size:11px; font-weight:600; }
+    .page-jump select { max-width:175px; min-height:38px; padding:7px 12px; border-radius:8px; border:1px solid rgba(101,110,99,.26); background:rgba(255,255,255,.55); color:#415647; font-size:13px; cursor:pointer; }
+    .page-nav-cluster { display:flex; align-items:center; justify-content:center; gap:14px; }
     .flip-button { display:flex; align-items:center; gap:8px; background:transparent; border:0; font-size:11px; font-weight:700; color:#657667; white-space:nowrap; }
     .flip-button .nav-icon { font-size:16px; line-height:1; }
     .flip-button .nav-label { line-height:1; }
     .reader-view[data-theme="dark"] .flip-button { color:#cdd8ce; }
-    .progress-track { width:min(420px,42vw); accent-color:#657e65; }
-    .page-status { white-space:nowrap; font-size:10px; color:#859084; min-width:76px; text-align:center; }
+    .page-status { white-space:nowrap; font-size:11px; color:#859084; min-width:76px; text-align:center; }
     .reader-view[data-theme="dark"] .page-status { color:#b4c0b7; }
+    .reader-view[data-theme="dark"] .page-jump { color:#b4c0b7; }
+    .reader-view[data-theme="dark"] .page-jump select { background:#2a3434; color:#e2e8e2; border-color:#465050; }
     .reader-hint { text-align:center; margin:17px auto 0; font-size:10px; color:#a2a8a0; }
     .reader-view[data-theme="dark"] .reader-hint { color:#798782; }
     .measure-text { position:fixed; top:-100000px; left:-100000px; visibility:hidden; pointer-events:none; overflow:visible; font-family:var(--serif); line-height:1.83; overflow-wrap:break-word; }
@@ -233,7 +237,7 @@
       .book-scene{width:min(620px,calc(100vw - 24px))}.book-shell{height:clamp(520px,calc(100dvh - 210px),760px)}
       .paper{width:100%;padding:25px clamp(23px,6vw,45px) 17px}.paper-right{display:none}.paper-left{border-radius:4px}.book-shell:after{display:none}
       .page-flip{width:100%}.page-flip.forward,.page-flip.backward{left:0}.page-flip .paper{display:flex}
-      .paper-text{padding-top:16px;line-height:1.78}.reader-bottom{display:grid;grid-template-columns:44px 1fr 44px;grid-template-areas:'progress progress progress' 'prev status next';align-items:center;gap:10px 10px;padding:0 12px;margin-top:10px}.progress-track{grid-area:progress;width:100%}.page-status{grid-area:status;min-width:0;font-size:12px}.flip-button{font-size:10px}.nav-arrow{width:44px;height:44px;border:1px solid rgba(101,110,99,.2);border-radius:999px;display:grid;place-items:center;padding:0;background:rgba(255,255,255,.35)}#prevPage{grid-area:prev;justify-self:start}#nextPage{grid-area:next;justify-self:end}.nav-arrow .nav-label{display:none}.nav-arrow .nav-icon{font-size:20px}.reader-view[data-theme="dark"] .nav-arrow{background:#2a3434;border-color:#465050}.reader-hint{display:none}
+      .paper-text{padding-top:16px;line-height:1.78}.reader-bottom{flex-direction:column;gap:9px;padding:0 12px;margin-top:10px}.page-jump{justify-content:center;gap:9px;font-size:12px}.page-jump select{min-width:134px;min-height:39px;font-size:16px}.page-nav-cluster{width:auto;gap:14px}.page-status{min-width:76px;font-size:13px;font-weight:600}.flip-button{font-size:10px}.nav-arrow{width:44px;height:44px;border:1px solid rgba(101,110,99,.2);border-radius:999px;display:grid;place-items:center;padding:0;background:rgba(255,255,255,.35)}.nav-arrow .nav-label{display:none}.nav-arrow .nav-icon{font-size:20px}.reader-view[data-theme="dark"] .nav-arrow{background:#2a3434;border-color:#465050}.reader-hint{display:none}
     }
     @media (max-width:760px) { .admin-floating { display:none !important; } }
     @media (max-width:420px) { .cover-slot{height:182px}.library-cover{width:103px;height:150px}.library-cover .cover-mock{padding:12px}.library-cover .cover-title{font-size:18px}.library-cover .cover-author{font-size:6px}.book-genre{font-size:8px}.book-pages{font-size:9px}.book-title{font-size:20px}.field-row{grid-template-columns:1fr;gap:0}.featured{min-height:610px}.reader-controls{padding-inline:8px}.tool-btn{min-width:26px;padding:7px}.book-scene{width:calc(100vw - 16px)}.book-shell{height:clamp(500px,calc(100dvh - 205px),720px)}.paper{padding-inline:21px}.modal{padding:20px} }
@@ -285,7 +289,14 @@
       <div class="book-scene" id="bookScene"><div class="book-shell" id="bookShell"><div class="paper paper-left" id="leftPaper"><div class="paper-running"><span></span><span>✧</span></div><div class="paper-text"></div><div class="paper-number"></div></div><div class="paper paper-right" id="rightPaper"><div class="paper-running"><span></span><span>✧</span></div><div class="paper-text"></div><div class="paper-number"></div></div></div></div>
       <button class="page-nav-side" id="nextSide" aria-label="Trang sau"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
-    <div class="reader-bottom"><button class="flip-button nav-arrow" id="prevPage" aria-label="Trang trước"><span class="nav-icon" aria-hidden="true">←</span><span class="nav-label">Trang trước</span></button><input class="progress-track" id="progressRange" type="range" value="0" min="0" max="0" aria-label="Vị trí đọc"/><span class="page-status" id="pageStatus"></span><button class="flip-button nav-arrow" id="nextPage" aria-label="Trang sau"><span class="nav-label">Trang sau</span><span class="nav-icon" aria-hidden="true">→</span></button></div>
+    <div class="reader-bottom">
+      <label class="page-jump" for="pageSelect">Đến trang <select id="pageSelect" aria-label="Chọn trang muốn đọc"><option value="0">Trang 1</option></select></label>
+      <div class="page-nav-cluster">
+        <button class="flip-button nav-arrow" id="prevPage" aria-label="Trang trước"><span class="nav-icon" aria-hidden="true">←</span><span class="nav-label">Trang trước</span></button>
+        <span class="page-status" id="pageStatus" aria-live="polite"></span>
+        <button class="flip-button nav-arrow" id="nextPage" aria-label="Trang sau"><span class="nav-label">Trang sau</span><span class="nav-icon" aria-hidden="true">→</span></button>
+      </div>
+    </div>
     <section class="tts-panel" id="ttsPanel" aria-label="Đọc sách bằng giọng nói">
       <div class="tts-header"><div class="tts-title">🔊 Nghe sách bằng giọng nói</div><span class="tts-badge">Miễn phí · Giọng đọc thiết bị</span></div>
       <div class="tts-actions">
@@ -649,8 +660,26 @@
     fillPaper($('#leftPaper'),state.pageIndex,'left'); fillPaper($('#rightPaper'),state.pageIndex+1,'right');
     const end=Math.min(state.pageIndex+step(),state.pages.length);
     $('#pageStatus').textContent=`${state.pageIndex+1}${end>state.pageIndex+1?'–'+end:''} / ${state.pages.length}`;
-    $('#progressRange').max=Math.max(0,Math.ceil(state.pages.length/step())-1);
-    $('#progressRange').value=Math.floor(state.pageIndex/step());
+    // Dropdown chọn trang: một mục cho mỗi trang trên điện thoại,
+    // hoặc mỗi cặp trang trên màn hình rộng.
+    const select=$('#pageSelect');
+    const perSpread=step();
+    const spreadCount=Math.max(1,Math.ceil(state.pages.length/perSpread));
+    const pageSignature=`${state.pages.length}:${perSpread}`;
+    if(select.dataset.pages!==pageSignature) {
+      const options=document.createDocumentFragment();
+      for(let i=0;i<spreadCount;i++) {
+        const start=i*perSpread+1;
+        const end=Math.min(start+perSpread-1,state.pages.length);
+        const option=document.createElement('option');
+        option.value=String(i);
+        option.textContent=`Trang ${start}${end>start?'–'+end:''}`;
+        options.appendChild(option);
+      }
+      select.replaceChildren(options);
+      select.dataset.pages=pageSignature;
+    }
+    select.value=String(Math.floor(state.pageIndex/perSpread));
     const disabledPrev=state.pageIndex<=0, disabledNext=state.pageIndex+step()>=state.pages.length;
     ['#prevSide','#prevPage'].forEach(x=>$(x).disabled=disabledPrev);
     ['#nextSide','#nextPage'].forEach(x=>$(x).disabled=disabledNext);
@@ -768,7 +797,7 @@
   $('#newBookTop').addEventListener('click',()=>editorModal());$('#editCurrent').addEventListener('click',()=>editorModal(state.currentId));
   ['#prevSide','#prevPage'].forEach(s=>$(s).addEventListener('click',()=>turn(-1)));
   ['#nextSide','#nextPage'].forEach(s=>$(s).addEventListener('click',()=>turn(1)));
-  $('#progressRange').addEventListener('input',e=>jumpSpread(e.target.value));
+  $('#pageSelect').addEventListener('change',e=>jumpSpread(e.target.value));
   $('#ttsPlay').addEventListener('click',()=>tts.paused?resumeTts():startTts());
   $('#ttsPause').addEventListener('click',pauseTts);
   $('#ttsStop').addEventListener('click',()=>ttsStop());
