@@ -175,12 +175,15 @@
     .tts-select { display:flex; align-items:center; gap:7px; font-size:11px; color:#68756c; }
     .tts-select select { max-width:200px; min-height:36px; padding:5px 8px; border:1px solid #c8d0c5; border-radius:7px; background:#fffdf7; color:#334b3b; font-size:11px; }
     .tts-status { margin:12px 0 0; min-height:16px; font-size:11px; color:#728074; line-height:1.6; }
+    .tts-help { margin:9px 0 0; font-size:11px; line-height:1.75; padding:11px 12px; border-radius:7px; border:1px solid #e6d8ac; background:#fff7df; color:#705a28; }
+    .tts-help a { color:inherit; text-decoration:underline; }
     .reader-view[data-theme="dark"] .tts-panel { background:#252e2e; border-color:#465451; box-shadow:none; }
     .reader-view[data-theme="dark"] .tts-title { color:#dcebdc; }
     .reader-view[data-theme="dark"] .tts-badge,.reader-view[data-theme="dark"] .tts-status,.reader-view[data-theme="dark"] .tts-select { color:#b5c3ba; }
     .reader-view[data-theme="dark"] .tts-actions button { color:#e0e8df; border-color:#52635a; }
     .reader-view[data-theme="dark"] .tts-actions .tts-primary { background:#597761; border-color:#597761; color:white; }
     .reader-view[data-theme="dark"] .tts-select select { background:#202929; border-color:#52635a; color:#e0e8df; }
+    .reader-view[data-theme="dark"] .tts-help { border-color:#756543; background:#393527; color:#f5dca0; }
     @media (max-width:760px) { .tts-panel{width:calc(100% - 22px);margin-top:16px;padding:13px 12px}.tts-header{align-items:flex-start}.tts-title{font-size:12px}.tts-actions{gap:8px}.tts-select{flex:1 1 125px}.tts-select select{min-width:0;width:100%;max-width:100%} }
     /* modal */
     .modal-backdrop { position:fixed; inset:0; background:rgba(21,30,25,.55); backdrop-filter:blur(5px); display:grid; place-items:center; z-index:100; padding:20px; }
@@ -287,12 +290,14 @@
         <button class="tts-primary" id="ttsPlay" type="button">▶ Nghe từ trang này</button>
         <button id="ttsPause" type="button" hidden>⏸ Tạm dừng</button>
         <button id="ttsStop" type="button" disabled>■ Dừng</button>
+        <button id="ttsCheckVoice" type="button" title="Tải lại danh sách giọng nói tiếng Việt">↻ Kiểm tra giọng</button>
         <label class="tts-select">Tốc độ <select id="ttsRate" aria-label="Tốc độ đọc">
           <option value="0.75">0.75×</option><option value="0.9">0.9×</option><option value="1" selected>1×</option><option value="1.15">1.15×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option>
         </select></label>
         <label class="tts-select">Giọng đọc <select id="ttsVoice" aria-label="Giọng đọc tiếng Việt"><option value="">Tự động (tiếng Việt)</option></select></label>
       </div>
       <p class="tts-status" id="ttsStatus" role="status" aria-live="polite">Nhấn Nghe để đọc từ trang hiện tại. Tự lật trang khi đọc xong.</p>
+      <p class="tts-help" id="ttsHelp" hidden>⚠ Không có giọng đọc tiếng Việt (<strong>vi-VN</strong>) mà trang web có thể sử dụng. Trên Windows: mở <strong>Settings → Time & language → Language & region → Add a language</strong>, cài <strong>Vietnamese</strong> cùng tính năng <strong>Text-to-speech</strong> nếu được cung cấp. Sau đó đóng/mở lại Chrome hoặc Edge và bấm <strong>↻ Kiểm tra giọng</strong>. Một số giọng trong nút “Đọc to” của Edge không xuất hiện trong danh sách giọng dành cho website. <a href="https://support.microsoft.com/en-us/accessibility/windows/narrator/appendix-a-supported-languages-and-voices" target="_blank" rel="noopener noreferrer">Hướng dẫn Microsoft</a>.</p>
     </section>
     <div class="reader-hint">Nhấn phím ← → hoặc chạm vào nút hai bên để lật trang · Vị trí đọc được lưu tự động</div>
   </main>
@@ -408,20 +413,66 @@
   const ttsSynth = ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) ? window.speechSynthesis : null;
   const ttsSaved = readJSON('mocthu-tts-v1', {});
   const tts = {
-    active:false, paused:false, token:0, page:0, pieces:[], piece:0, utterance:null, turning:false,
+    active:false, paused:false, checking:false, token:0, page:0, pieces:[], piece:0, utterance:null, turning:false,
     rate:[.75,.9,1,1.15,1.25,1.5,2].includes(Number(ttsSaved.rate))?Number(ttsSaved.rate):1,
     voiceURI:typeof ttsSaved.voiceURI==='string'?ttsSaved.voiceURI:''
   };
-  const vietnameseVoice = voice => /^vi(?:-|_|$)/i.test(voice.lang||'') || /vietnamese|tiếng việt/i.test(voice.name||'');
-  function ttsVoices() { return ttsSynth?ttsSynth.getVoices().filter(vietnameseVoice):[]; }
+  // Chỉ chấp nhận giọng tiếng Việt thật sự. lang='vi-VN' KHÔNG tạo ra giọng tiếng Việt
+  // nếu trình duyệt không cung cấp voice phù hợp; thiếu voice phải dừng thay vì đọc giọng Anh.
+  const vietnameseVoice = voice => /^vi(?:-|_|$)/i.test(voice.lang||'') ||
+    (!voice.lang && /vietnamese|tiếng việt/i.test(voice.name||''));
+  function ttsVoices() {
+    return ttsSynth ? ttsSynth.getVoices().filter(vietnameseVoice) : [];
+  }
   function refreshTtsVoices() {
-    const select=$('#ttsVoice'); const previous=tts.voiceURI;
-    select.replaceChildren(new Option('Tự động (tiếng Việt)', ''));
-    for (const voice of ttsVoices()) select.add(new Option(voice.name+' ('+voice.lang+')',voice.voiceURI));
-    if ([...select.options].some(o=>o.value===previous)) select.value=previous;
-    else {tts.voiceURI='';select.value='';}
-    if (ttsSynth && !tts.active && ttsVoices().length===0)
-      $('#ttsStatus').textContent='Chưa tìm thấy giọng tiếng Việt được liệt kê. Có thể thử phát; nếu đọc sai giọng, hãy cài giọng tiếng Việt trên thiết bị.';
+    if(!ttsSynth) return;
+    const select=$('#ttsVoice');
+    const previous=tts.voiceURI;
+    const voices=ttsVoices();
+    select.replaceChildren(new Option(voices.length ? 'Tự động (tiếng Việt)' : 'Chưa có giọng tiếng Việt', ''));
+    for(const voice of voices) select.add(new Option(voice.name+' ('+voice.lang+')',voice.voiceURI));
+    if(previous && voices.some(v=>v.voiceURI===previous)) select.value=previous;
+    else { tts.voiceURI='';select.value=''; }
+    select.disabled=!voices.length;
+    $('#ttsHelp').hidden=!!voices.length;
+    if (!tts.active && !tts.checking)
+      $('#ttsStatus').textContent=voices.length
+        ? 'Đã nhận '+voices.length+' giọng tiếng Việt. Nhấn Nghe để bắt đầu.'
+        : 'Không tìm thấy giọng đọc tiếng Việt. Website sẽ không dùng giọng tiếng Anh thay thế.';
+  }
+  async function requireVietnameseVoice() {
+    if(!ttsSynth) return null;
+    refreshTtsVoices();
+    let voices=ttsVoices();
+    if(!voices.length) {
+      tts.checking=true;
+      $('#ttsStatus').textContent='Đang đợi trình duyệt tải danh sách giọng tiếng Việt…';
+      // Danh sách voice thường tải sau khi trang mở; đợi voiceschanged trong thời gian ngắn.
+      await new Promise(resolve=> {
+        let finished=false;
+        const done=()=> {
+          if(finished) return;
+          finished=true;
+          clearTimeout(timer);
+          ttsSynth.removeEventListener?.('voiceschanged', onChanged);
+          resolve();
+        };
+        const onChanged=()=>{if(ttsVoices().length) done();};
+        ttsSynth.addEventListener?.('voiceschanged', onChanged);
+        const timer=setTimeout(done,1600);
+      });
+      tts.checking=false;
+      refreshTtsVoices();
+      voices=ttsVoices();
+    }
+    if(!voices.length) {
+      $('#ttsHelp').hidden=false;
+      $('#ttsStatus').textContent='Chưa có giọng tiếng Việt trên trình duyệt. Hãy xem cách cài bên dưới, sau đó bấm Kiểm tra giọng.';
+      toast('Chưa có giọng tiếng Việt. Đã chặn phát bằng giọng tiếng Anh.');
+      return null;
+    }
+    // Nếu voice trước đây đã bị gỡ, chọn voice tiếng Việt đầu tiên thay vì voice mặc định.
+    return voices.find(v=>v.voiceURI===tts.voiceURI) || voices.find(v=>/^vi[-_]VN$/i.test(v.lang||'')) || voices[0];
   }
   function ttsSaveOptions() { save('mocthu-tts-v1',{rate:tts.rate,voiceURI:tts.voiceURI}); }
   function updateTtsControls() {
@@ -471,8 +522,11 @@
     if (!tts.pieces.length) { tts.pieces=['Trang trống.']; tts.piece=0; }
     const utterance=new SpeechSynthesisUtterance(tts.pieces[tts.piece]);
     utterance.lang='vi-VN'; utterance.rate=tts.rate; utterance.pitch=1; utterance.volume=1;
-    const voice=ttsVoices().find(v=>v.voiceURI===tts.voiceURI) || ttsVoices()[0];
-    if(voice) utterance.voice=voice;
+    const voices=ttsVoices();
+    const voice=voices.find(v=>v.voiceURI===tts.voiceURI) || voices.find(v=>/^vi[-_]VN$/i.test(v.lang||'')) || voices[0];
+    if(!voice) {ttsStop('Giọng tiếng Việt đã biến mất khỏi trình duyệt. Bấm Kiểm tra giọng.');$('#ttsHelp').hidden=false;return;}
+    utterance.voice=voice;
+    utterance.lang=voice.lang || 'vi-VN';
     tts.utterance=utterance;
     $('#ttsStatus').textContent=`Đang đọc trang ${tts.page+1}/${state.pages.length} · Tốc độ ${tts.rate}×`;
     utterance.onend=()=>{
@@ -487,13 +541,17 @@
     };
     try {ttsSynth.speak(utterance);} catch {ttsStop('Không thể khởi động giọng đọc. Hãy kiểm tra cài đặt âm thanh của trình duyệt.');}
   }
-  function startTts() {
+  async function startTts() {
     if(!ttsSynth) {toast('Trình duyệt không hỗ trợ đọc sách bằng giọng nói.');return;}
-    if(!state.currentId || !state.pages.length) return;
+    if(!state.currentId || !state.pages.length || tts.checking) return;
+    const bookId=state.currentId;
+    tts.checking=true;
+    const voice=await requireVietnameseVoice();
+    tts.checking=false;
+    if(!voice || state.currentId!==bookId || $('#readerView').hidden) return;
     ttsStop('');
     tts.active=true; tts.page=state.pageIndex; tts.pieces=ttsPieces(state.pages[tts.page]); tts.piece=0;
     updateTtsControls();
-    if(!ttsVoices().length) toast('Thiết bị chưa liệt kê giọng tiếng Việt; hãy kiểm tra phát âm.');
     ttsNext(tts.token);
   }
   function pauseTts() {
@@ -712,6 +770,14 @@
   $('#ttsPlay').addEventListener('click',()=>tts.paused?resumeTts():startTts());
   $('#ttsPause').addEventListener('click',pauseTts);
   $('#ttsStop').addEventListener('click',()=>ttsStop());
+  $('#ttsCheckVoice').addEventListener('click',async()=> {
+    if(!ttsSynth) return;
+    if(tts.checking) return;
+    tts.checking=true;
+    const voice=await requireVietnameseVoice();
+    tts.checking=false;
+    if(voice && !tts.active) $('#ttsStatus').textContent='Đã tìm thấy giọng tiếng Việt: '+voice.name+'. Nhấn Nghe để bắt đầu.';
+  });
   $('#ttsRate').addEventListener('change',e=>{tts.rate=Number(e.target.value)||1;ttsSaveOptions();if(tts.active)$('#ttsStatus').textContent=`Đã chọn ${tts.rate}×. Tốc độ mới áp dụng ở đoạn tiếp theo.`;});
   $('#ttsVoice').addEventListener('change',e=>{tts.voiceURI=e.target.value;ttsSaveOptions();if(tts.active)ttsStop('Đã đổi giọng đọc. Nhấn Nghe để bắt đầu từ trang hiện tại.');});
   if(ttsSynth) {
