@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#eae7df" />
-  <title>Mộc Thư — Góc đọc của riêng bạn</title>
+  <title>Mộc Thư — Đọc và nghe sách</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Literata:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -150,6 +150,8 @@
     @keyframes flip-backward { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(180deg)} }
     .reader-bottom { max-width:1100px; margin:21px auto 0; padding:0 35px; display:flex; justify-content:center; align-items:center; gap:18px; }
     .flip-button { display:flex; align-items:center; gap:8px; background:transparent; border:0; font-size:11px; font-weight:700; color:#657667; white-space:nowrap; }
+    .flip-button .nav-icon { font-size:16px; line-height:1; }
+    .flip-button .nav-label { line-height:1; }
     .reader-view[data-theme="dark"] .flip-button { color:#cdd8ce; }
     .progress-track { width:min(420px,42vw); accent-color:#657e65; }
     .page-status { white-space:nowrap; font-size:10px; color:#859084; min-width:76px; text-align:center; }
@@ -160,6 +162,31 @@
     .paper-text, .measure-text { letter-spacing:normal; word-spacing:normal; font-kerning:normal; font-variant-ligatures:normal; text-rendering:optimizeLegibility; }
     .measure-text p { margin:0 0 .9em; text-indent:1em; }
     .measure-text p:first-child { text-indent:0; }
+
+    /* Trình đọc sách bằng giọng nói miễn phí - Web Speech API */
+    .tts-panel { width:min(930px,calc(100% - 32px)); margin:23px auto 0; padding:18px 20px; border:1px solid rgba(93,111,95,.2); border-radius:12px; background:rgba(255,253,247,.62); box-shadow:0 8px 22px rgba(40,52,43,.05); }
+    .tts-header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; }
+    .tts-title { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#3d5949; }
+    .tts-badge { font-size:10px; letter-spacing:.035em; color:#748778; }
+    .tts-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .tts-actions button { min-height:37px; border:1px solid #bdcbbd; border-radius:7px; padding:7px 12px; font-size:11px; font-weight:700; background:transparent; color:#40584b; }
+    .tts-actions button:hover:not(:disabled) { background:rgba(96,126,103,.13); }
+    .tts-actions button:disabled { opacity:.45; cursor:not-allowed; }
+    .tts-actions .tts-primary { background:#445f4f; border-color:#445f4f; color:#fff; }
+    .tts-actions .tts-primary:hover:not(:disabled) { background:#2d4739; }
+    .tts-select { display:flex; align-items:center; gap:7px; font-size:11px; color:#68756c; }
+    .tts-select select { max-width:200px; min-height:36px; padding:5px 8px; border:1px solid #c8d0c5; border-radius:7px; background:#fffdf7; color:#334b3b; font-size:11px; }
+    .tts-status { margin:12px 0 0; min-height:16px; font-size:11px; color:#728074; line-height:1.6; }
+    .tts-help { margin:9px 0 0; font-size:11px; line-height:1.75; padding:11px 12px; border-radius:7px; border:1px solid #e6d8ac; background:#fff7df; color:#705a28; }
+    .tts-help a { color:inherit; text-decoration:underline; }
+    .reader-view[data-theme="dark"] .tts-panel { background:#252e2e; border-color:#465451; box-shadow:none; }
+    .reader-view[data-theme="dark"] .tts-title { color:#dcebdc; }
+    .reader-view[data-theme="dark"] .tts-badge,.reader-view[data-theme="dark"] .tts-status,.reader-view[data-theme="dark"] .tts-select { color:#b5c3ba; }
+    .reader-view[data-theme="dark"] .tts-actions button { color:#e0e8df; border-color:#52635a; }
+    .reader-view[data-theme="dark"] .tts-actions .tts-primary { background:#597761; border-color:#597761; color:white; }
+    .reader-view[data-theme="dark"] .tts-select select { background:#202929; border-color:#52635a; color:#e0e8df; }
+    .reader-view[data-theme="dark"] .tts-help { border-color:#756543; background:#393527; color:#f5dca0; }
+    @media (max-width:760px) { .tts-panel{width:calc(100% - 22px);margin-top:16px;padding:13px 12px}.tts-header{align-items:flex-start}.tts-title{font-size:12px}.tts-actions{gap:8px}.tts-select{flex:1 1 125px}.tts-select select{min-width:0;width:100%;max-width:100%} }
     /* modal */
     .modal-backdrop { position:fixed; inset:0; background:rgba(21,30,25,.55); backdrop-filter:blur(5px); display:grid; place-items:center; z-index:100; padding:20px; }
     .modal { width:min(440px,100%); max-height:calc(100dvh - 30px); overflow:auto; background:#faf8f2; color:#32382f; border-radius:9px; box-shadow:0 25px 90px rgba(0,0,0,.26); padding:30px; }
@@ -200,16 +227,16 @@
       .feature-visual{min-height:250px}.hero-book{width:154px;height:222px;transform:translate(0,0) rotate(-12deg)}.hero-book .cover-title{font-size:23px}
       .feature-circles{width:260px;height:260px} .shelf-header{margin-top:45px}.shelf-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.book-item{padding:12px}
       .cover-slot{height:213px}.library-cover{width:121px;height:178px} .book-title{font-size:22px;min-height:43px}.book-by{font-size:9px}
-      .reader-controls{display:grid;grid-template-columns:1fr auto;gap:15px 8px;padding:14px 17px 10px}.reader-title-block{grid-column:1/-1;grid-row:2}.back-btn{justify-self:start}.read-tools{gap:6px}
+      .reader-controls{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px 8px;padding:12px 14px 8px}.reader-title-block{display:none}.back-btn{justify-self:start}.read-tools{justify-self:end;gap:6px}
       .brightness-wrap{gap:4px} .brightness-wrap .icon{display:none} .brightness-wrap input{width:50px} .tool-btn{padding:8px 8px;min-width:30px}.reader-book-name{font-size:18px}.reader-book-by{margin-top:3px}
-      .book-area{gap:5px;padding:8px 9px}.page-nav-side{width:28px;height:38px;border-radius:6px}.page-nav-side .icon{width:16px}
-      .book-scene{width:min(510px,calc(100vw - 86px))}.book-shell{height:clamp(440px,calc(100dvh - 245px),700px)}
+      .book-area{gap:0;padding:6px 0 2px}.page-nav-side{display:none}.page-nav-side .icon{width:16px}
+      .book-scene{width:min(620px,calc(100vw - 24px))}.book-shell{height:clamp(520px,calc(100dvh - 210px),760px)}
       .paper{width:100%;padding:25px clamp(23px,6vw,45px) 17px}.paper-right{display:none}.paper-left{border-radius:4px}.book-shell:after{display:none}
       .page-flip{width:100%}.page-flip.forward,.page-flip.backward{left:0}.page-flip .paper{display:flex}
-      .paper-text{padding-top:16px;line-height:1.78}.reader-bottom{gap:7px;padding:0 11px;margin-top:13px}.progress-track{width:29vw}.page-status{min-width:58px}.flip-button{font-size:10px}.reader-hint{padding:0 20px}
+      .paper-text{padding-top:16px;line-height:1.78}.reader-bottom{display:grid;grid-template-columns:44px 1fr 44px;grid-template-areas:'progress progress progress' 'prev status next';align-items:center;gap:10px 10px;padding:0 12px;margin-top:10px}.progress-track{grid-area:progress;width:100%}.page-status{grid-area:status;min-width:0;font-size:12px}.flip-button{font-size:10px}.nav-arrow{width:44px;height:44px;border:1px solid rgba(101,110,99,.2);border-radius:999px;display:grid;place-items:center;padding:0;background:rgba(255,255,255,.35)}#prevPage{grid-area:prev;justify-self:start}#nextPage{grid-area:next;justify-self:end}.nav-arrow .nav-label{display:none}.nav-arrow .nav-icon{font-size:20px}.reader-view[data-theme="dark"] .nav-arrow{background:#2a3434;border-color:#465050}.reader-hint{display:none}
     }
     @media (max-width:760px) { .admin-floating { display:none !important; } }
-    @media (max-width:420px) { .cover-slot{height:182px}.library-cover{width:103px;height:150px}.library-cover .cover-mock{padding:12px}.library-cover .cover-title{font-size:18px}.library-cover .cover-author{font-size:6px}.book-genre{font-size:8px}.book-pages{font-size:9px}.book-title{font-size:20px}.field-row{grid-template-columns:1fr;gap:0}.featured{min-height:610px}.reader-controls{padding-inline:8px}.tool-btn{min-width:26px;padding:7px}.book-scene{width:calc(100vw - 72px)}.paper{padding-inline:21px}.reader-hint{font-size:9px}.modal{padding:20px} }
+    @media (max-width:420px) { .cover-slot{height:182px}.library-cover{width:103px;height:150px}.library-cover .cover-mock{padding:12px}.library-cover .cover-title{font-size:18px}.library-cover .cover-author{font-size:6px}.book-genre{font-size:8px}.book-pages{font-size:9px}.book-title{font-size:20px}.field-row{grid-template-columns:1fr;gap:0}.featured{min-height:610px}.reader-controls{padding-inline:8px}.tool-btn{min-width:26px;padding:7px}.book-scene{width:calc(100vw - 16px)}.book-shell{height:clamp(500px,calc(100dvh - 205px),720px)}.paper{padding-inline:21px}.modal{padding:20px} }
     @media (prefers-reduced-motion:reduce) { *{scroll-behavior:auto !important;transition:none !important;} .page-flip.forward,.page-flip.backward{animation-duration:.05s;} }
   </style>
 </head>
@@ -258,7 +285,22 @@
       <div class="book-scene" id="bookScene"><div class="book-shell" id="bookShell"><div class="paper paper-left" id="leftPaper"><div class="paper-running"><span></span><span>✧</span></div><div class="paper-text"></div><div class="paper-number"></div></div><div class="paper paper-right" id="rightPaper"><div class="paper-running"><span></span><span>✧</span></div><div class="paper-text"></div><div class="paper-number"></div></div></div></div>
       <button class="page-nav-side" id="nextSide" aria-label="Trang sau"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
-    <div class="reader-bottom"><button class="flip-button" id="prevPage">← Trang trước</button><input class="progress-track" id="progressRange" type="range" value="0" min="0" max="0" aria-label="Vị trí đọc"/><span class="page-status" id="pageStatus"></span><button class="flip-button" id="nextPage">Trang sau →</button></div>
+    <div class="reader-bottom"><button class="flip-button nav-arrow" id="prevPage" aria-label="Trang trước"><span class="nav-icon" aria-hidden="true">←</span><span class="nav-label">Trang trước</span></button><input class="progress-track" id="progressRange" type="range" value="0" min="0" max="0" aria-label="Vị trí đọc"/><span class="page-status" id="pageStatus"></span><button class="flip-button nav-arrow" id="nextPage" aria-label="Trang sau"><span class="nav-label">Trang sau</span><span class="nav-icon" aria-hidden="true">→</span></button></div>
+    <section class="tts-panel" id="ttsPanel" aria-label="Đọc sách bằng giọng nói">
+      <div class="tts-header"><div class="tts-title">🔊 Nghe sách bằng giọng nói</div><span class="tts-badge">Miễn phí · Giọng đọc thiết bị</span></div>
+      <div class="tts-actions">
+        <button class="tts-primary" id="ttsPlay" type="button">▶ Nghe từ trang này</button>
+        <button id="ttsPause" type="button" hidden>⏸ Tạm dừng</button>
+        <button id="ttsStop" type="button" disabled>■ Dừng</button>
+        <button id="ttsCheckVoice" type="button" title="Tải lại danh sách giọng nói tiếng Việt">↻ Kiểm tra giọng</button>
+        <label class="tts-select">Tốc độ <select id="ttsRate" aria-label="Tốc độ đọc">
+          <option value="0.75">0.75×</option><option value="0.9">0.9×</option><option value="1" selected>1×</option><option value="1.15">1.15×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+        </select></label>
+        <label class="tts-select">Giọng đọc <select id="ttsVoice" aria-label="Giọng đọc tiếng Việt"><option value="">Tự động (tiếng Việt)</option></select></label>
+      </div>
+      <p class="tts-status" id="ttsStatus" role="status" aria-live="polite">Nhấn Nghe để đọc từ trang hiện tại. Tự lật trang khi đọc xong.</p>
+      <p class="tts-help" id="ttsHelp" hidden>⚠ Không có giọng đọc tiếng Việt (<strong>vi-VN</strong>) mà trang web có thể sử dụng. Trên Windows: mở <strong>Settings → Time & language → Language & region → Add a language</strong>, cài <strong>Vietnamese</strong> cùng tính năng <strong>Text-to-speech</strong> nếu được cung cấp. Sau đó đóng/mở lại Chrome hoặc Edge và bấm <strong>↻ Kiểm tra giọng</strong>. Một số giọng trong nút “Đọc to” của Edge không xuất hiện trong danh sách giọng dành cho website. <a href="https://support.microsoft.com/en-us/accessibility/windows/narrator/appendix-a-supported-languages-and-voices" target="_blank" rel="noopener noreferrer">Hướng dẫn Microsoft</a>.</p>
+    </section>
     <div class="reader-hint">Nhấn phím ← → hoặc chạm vào nút hai bên để lật trang · Vị trí đọc được lưu tự động</div>
   </main>
 
@@ -367,7 +409,168 @@
       : `<div class="no-books"><h2>Thư viện còn trống</h2><p>Đăng nhập admin và tạo cuốn sách đầu tiên nhé.</p></div>`;
     $('#adminButtonText').textContent=state.admin?'Quản lý Admin':'Đăng nhập Admin';
   }
+
+  // Text-to-Speech miễn phí. Nội dung sách không được ghi thành file audio hoặc gửi tới API của website.
+  // Giọng đọc do trình duyệt / hệ điều hành cung cấp; một số thiết bị cần cài thêm giọng tiếng Việt.
+  const ttsSynth = ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) ? window.speechSynthesis : null;
+  const ttsSaved = readJSON('mocthu-tts-v1', {});
+  const tts = {
+    active:false, paused:false, checking:false, token:0, page:0, pieces:[], piece:0, utterance:null, turning:false,
+    rate:[.75,.9,1,1.15,1.25,1.5,2].includes(Number(ttsSaved.rate))?Number(ttsSaved.rate):1,
+    voiceURI:typeof ttsSaved.voiceURI==='string'?ttsSaved.voiceURI:''
+  };
+  // Chỉ chấp nhận giọng tiếng Việt thật sự. lang='vi-VN' KHÔNG tạo ra giọng tiếng Việt
+  // nếu trình duyệt không cung cấp voice phù hợp; thiếu voice phải dừng thay vì đọc giọng Anh.
+  const vietnameseVoice = voice => /^vi(?:-|_|$)/i.test(voice.lang||'') ||
+    (!voice.lang && /vietnamese|tiếng việt/i.test(voice.name||''));
+  function ttsVoices() {
+    return ttsSynth ? ttsSynth.getVoices().filter(vietnameseVoice) : [];
+  }
+  function refreshTtsVoices() {
+    if(!ttsSynth) return;
+    const select=$('#ttsVoice');
+    const previous=tts.voiceURI;
+    const voices=ttsVoices();
+    select.replaceChildren(new Option(voices.length ? 'Tự động (tiếng Việt)' : 'Chưa có giọng tiếng Việt', ''));
+    for(const voice of voices) select.add(new Option(voice.name+' ('+voice.lang+')',voice.voiceURI));
+    if(previous && voices.some(v=>v.voiceURI===previous)) select.value=previous;
+    else { tts.voiceURI='';select.value=''; }
+    select.disabled=!voices.length;
+    $('#ttsHelp').hidden=!!voices.length;
+    if (!tts.active && !tts.checking)
+      $('#ttsStatus').textContent=voices.length
+        ? 'Đã nhận '+voices.length+' giọng tiếng Việt. Nhấn Nghe để bắt đầu.'
+        : 'Không tìm thấy giọng đọc tiếng Việt. Website sẽ không dùng giọng tiếng Anh thay thế.';
+  }
+  async function requireVietnameseVoice() {
+    if(!ttsSynth) return null;
+    refreshTtsVoices();
+    let voices=ttsVoices();
+    if(!voices.length) {
+      tts.checking=true;
+      $('#ttsStatus').textContent='Đang đợi trình duyệt tải danh sách giọng tiếng Việt…';
+      // Danh sách voice thường tải sau khi trang mở; đợi voiceschanged trong thời gian ngắn.
+      await new Promise(resolve=> {
+        let finished=false;
+        const done=()=> {
+          if(finished) return;
+          finished=true;
+          clearTimeout(timer);
+          ttsSynth.removeEventListener?.('voiceschanged', onChanged);
+          resolve();
+        };
+        const onChanged=()=>{if(ttsVoices().length) done();};
+        ttsSynth.addEventListener?.('voiceschanged', onChanged);
+        const timer=setTimeout(done,1600);
+      });
+      tts.checking=false;
+      refreshTtsVoices();
+      voices=ttsVoices();
+    }
+    if(!voices.length) {
+      $('#ttsHelp').hidden=false;
+      $('#ttsStatus').textContent='Chưa có giọng tiếng Việt trên trình duyệt. Hãy xem cách cài bên dưới, sau đó bấm Kiểm tra giọng.';
+      toast('Chưa có giọng tiếng Việt. Đã chặn phát bằng giọng tiếng Anh.');
+      return null;
+    }
+    // Nếu voice trước đây đã bị gỡ, chọn voice tiếng Việt đầu tiên thay vì voice mặc định.
+    return voices.find(v=>v.voiceURI===tts.voiceURI) || voices.find(v=>/^vi[-_]VN$/i.test(v.lang||'')) || voices[0];
+  }
+  function ttsSaveOptions() { save('mocthu-tts-v1',{rate:tts.rate,voiceURI:tts.voiceURI}); }
+  function updateTtsControls() {
+    $('#ttsPlay').disabled=!ttsSynth;
+    $('#ttsPlay').textContent=tts.paused?'▶ Tiếp tục':tts.active?'↻ Đọc lại trang này':'▶ Nghe từ trang này';
+    $('#ttsPause').hidden=!tts.active||tts.paused;
+    $('#ttsStop').disabled=!tts.active;
+    $('#ttsRate').value=String(tts.rate);
+    if(!ttsSynth) $('#ttsStatus').textContent='Trình duyệt hiện tại không hỗ trợ đọc văn bản. Hãy thử Chrome hoặc Edge.';
+  }
+  function ttsStop(message='Đã dừng đọc sách.') {
+    tts.token++; tts.active=false; tts.paused=false; tts.utterance=null; tts.turning=false;
+    if(ttsSynth) ttsSynth.cancel();
+    $('#ttsStatus').textContent=message; updateTtsControls();
+  }
+  function ttsPieces(paragraphs) {
+    // Đọc theo đoạn ngắn để Chrome/Edge không bị kẹt ở một câu quá dài.
+    const pieces=[];
+    for(const paragraph of paragraphs||[]) {
+      let chunk='';
+      for (const word of paragraph.trim().split(/\s+/).filter(Boolean)) {
+        if (chunk && chunk.length+word.length+1>170) { pieces.push(chunk);chunk=''; }
+        chunk += (chunk?' ':'') + word;
+      }
+      if(chunk) pieces.push(chunk);
+    }
+    return pieces;
+  }
+  function ttsFinish() { ttsStop('Đã nghe hết cuốn sách. ✨'); }
+  function ttsNext(token) {
+    if (token!==tts.token || !tts.active || tts.paused || tts.utterance || tts.turning || $('#readerView').hidden) return;
+    if (tts.piece>=tts.pieces.length) {
+      tts.page++;
+      if (tts.page>=state.pages.length) return ttsFinish();
+      tts.pieces=ttsPieces(state.pages[tts.page]); tts.piece=0;
+      if (tts.page>=state.pageIndex+step()) {
+        tts.turning=true;
+        const moved=turn(1,{auto:true,onComplete:()=>{
+          if(token!==tts.token)return;
+          tts.turning=false;
+          ttsNext(token);
+        }});
+        if (!moved) ttsStop('Đã dừng đọc khi không thể lật trang.');
+        return;
+      }
+    }
+    if (!tts.pieces.length) { tts.pieces=['Trang trống.']; tts.piece=0; }
+    const utterance=new SpeechSynthesisUtterance(tts.pieces[tts.piece]);
+    utterance.lang='vi-VN'; utterance.rate=tts.rate; utterance.pitch=1; utterance.volume=1;
+    const voices=ttsVoices();
+    const voice=voices.find(v=>v.voiceURI===tts.voiceURI) || voices.find(v=>/^vi[-_]VN$/i.test(v.lang||'')) || voices[0];
+    if(!voice) {ttsStop('Giọng tiếng Việt đã biến mất khỏi trình duyệt. Bấm Kiểm tra giọng.');$('#ttsHelp').hidden=false;return;}
+    utterance.voice=voice;
+    utterance.lang=voice.lang || 'vi-VN';
+    tts.utterance=utterance;
+    $('#ttsStatus').textContent=`Đang đọc trang ${tts.page+1}/${state.pages.length} · Tốc độ ${tts.rate}×`;
+    utterance.onend=()=>{
+      if(token!==tts.token || tts.utterance!==utterance) return;
+      tts.utterance=null; tts.piece++;
+      setTimeout(()=>ttsNext(token),35);
+    };
+    utterance.onerror=e=>{
+      if(token!==tts.token || tts.utterance!==utterance) return;
+      if(e.error==='canceled'||e.error==='interrupted')return;
+      ttsStop('Không thể phát giọng đọc trên thiết bị này. Hãy thử một giọng khác hoặc Chrome/Edge.');
+    };
+    try {ttsSynth.speak(utterance);} catch {ttsStop('Không thể khởi động giọng đọc. Hãy kiểm tra cài đặt âm thanh của trình duyệt.');}
+  }
+  async function startTts() {
+    if(!ttsSynth) {toast('Trình duyệt không hỗ trợ đọc sách bằng giọng nói.');return;}
+    if(!state.currentId || !state.pages.length || tts.checking) return;
+    const bookId=state.currentId;
+    tts.checking=true;
+    const voice=await requireVietnameseVoice();
+    tts.checking=false;
+    if(!voice || state.currentId!==bookId || $('#readerView').hidden) return;
+    ttsStop('');
+    tts.active=true; tts.page=state.pageIndex; tts.pieces=ttsPieces(state.pages[tts.page]); tts.piece=0;
+    updateTtsControls();
+    ttsNext(tts.token);
+  }
+  function pauseTts() {
+    if(!ttsSynth || !tts.active || tts.paused) return;
+    tts.paused=true;ttsSynth.pause();
+    $('#ttsStatus').textContent=`Đã tạm dừng tại trang ${tts.page+1}.`;
+    updateTtsControls();
+  }
+  function resumeTts() {
+    if(!ttsSynth || !tts.active || !tts.paused) return;
+    tts.paused=false; ttsSynth.resume(); updateTtsControls();
+    $('#ttsStatus').textContent=`Tiếp tục đọc trang ${tts.page+1}/${state.pages.length}.`;
+    ttsNext(tts.token);
+  }
+
   function showLibrary() {
+    ttsStop('Nhấn Nghe để đọc từ trang hiện tại.');
     state.flipping=false; $('#readerView').hidden=true; $('#libraryView').hidden=false; $('#siteFooter').hidden=false;
     $('#editCurrent').hidden=true; document.body.classList.remove('reader-open');
     $('#libraryNav').classList.add('active'); $('#continueNav').classList.remove('active');
@@ -385,6 +588,7 @@
     save(KEYS.prefs,state.prefs);
   }
   function openBook(id) {
+    ttsStop('Nhấn Nghe để đọc từ trang hiện tại.');
     const book=bookById(id); if (!book) return;
     state.currentId=id; state.flipping=false;
     $('#libraryView').hidden=true; $('#readerView').hidden=false; $('#siteFooter').hidden=true; document.body.classList.add('reader-open');
@@ -452,15 +656,17 @@
     ['#nextSide','#nextPage'].forEach(x=>$(x).disabled=disabledNext);
   }
   function repaginate(restore) {
+    if(tts.active) ttsStop('Bố cục trang thay đổi. Bấm Nghe để đọc lại từ trang đang mở.');
     const b=bookById(state.currentId); if(!b||$('#readerView').hidden) return;
     const oldPage=restore?(state.progress[state.currentId]||0):state.pageIndex;
     state.pages=paginate(b.content); state.pageIndex=normalizeIndex(oldPage); renderSpread();
   }
   function rememberProgress() { if (!state.currentId) return; state.progress[state.currentId]=state.pageIndex; save(KEYS.progress,state.progress); }
-  function turn(direction) {
-    if (state.flipping || $('#readerView').hidden) return;
+  function turn(direction,{auto=false,onComplete=null}={}) {
+    if (state.flipping || $('#readerView').hidden) return false;
     const old=state.pageIndex, next=old+direction*step();
-    if (next<0||next>=state.pages.length) return;
+    if (next<0||next>=state.pages.length) return false;
+    if(!auto && tts.active) ttsStop('Đã dừng đọc vì bro lật trang thủ công.');
     state.flipping=true;
     const mobile=isMobile(); const scene=$('#bookShell');
     let front,back,frontSide,backSide;
@@ -476,12 +682,14 @@
     const flip=document.createElement('div'); flip.className='page-flip '+(direction>0?'forward':'backward');
     flip.innerHTML=`<div class="flip-face front">${paperHTML(state.pages[front],front,frontSide)}</div><div class="flip-face back">${paperHTML(state.pages[back],back,backSide)}</div>`;
     scene.appendChild(flip);
-    const complete=()=>{ if(!state.flipping)return; flip.remove();state.pageIndex=next;state.flipping=false;renderSpread();rememberProgress(); };
+    let completed=false; const flipBookId=state.currentId;
+    const complete=()=>{ if(completed)return; completed=true; flip.remove();if(!state.flipping||state.currentId!==flipBookId)return;state.pageIndex=next;state.flipping=false;renderSpread();rememberProgress();if(typeof onComplete==='function')onComplete(); };
     flip.addEventListener('animationend',complete,{once:true});
     // Safari/reduced-motion fallback if animationend is skipped.
     setTimeout(complete,1000);
+    return true;
   }
-  function jumpSpread(n) { if(state.flipping)return; state.pageIndex=normalizeIndex(Number(n)*step());renderSpread();rememberProgress(); }
+  function jumpSpread(n) { if(state.flipping)return; if(tts.active)ttsStop('Đã dừng đọc vì bro chuyển trang.'); state.pageIndex=normalizeIndex(Number(n)*step());renderSpread();rememberProgress(); }
   function openModal(html,wide=false) { $('#modalContainer').classList.toggle('wide',wide);$('#modalContainer').innerHTML=html;$('#modalBackdrop').hidden=false;setTimeout(()=>$('#modalContainer input:not([type=file]),#modalContainer textarea,#modalContainer button').focus(),20); }
   function closeModal() {$('#modalBackdrop').hidden=true;$('#modalContainer').innerHTML='';}
   function modalHeader(title,subtitle) {return `<div class="modal-top"><div><h2 id="modalHeading">${title}</h2><p class="modal-subtitle">${subtitle}</p></div><button class="close-btn" data-close aria-label="Đóng">×</button></div>`;}
@@ -561,6 +769,25 @@
   ['#prevSide','#prevPage'].forEach(s=>$(s).addEventListener('click',()=>turn(-1)));
   ['#nextSide','#nextPage'].forEach(s=>$(s).addEventListener('click',()=>turn(1)));
   $('#progressRange').addEventListener('input',e=>jumpSpread(e.target.value));
+  $('#ttsPlay').addEventListener('click',()=>tts.paused?resumeTts():startTts());
+  $('#ttsPause').addEventListener('click',pauseTts);
+  $('#ttsStop').addEventListener('click',()=>ttsStop());
+  $('#ttsCheckVoice').addEventListener('click',async()=> {
+    if(!ttsSynth) return;
+    if(tts.checking) return;
+    tts.checking=true;
+    const voice=await requireVietnameseVoice();
+    tts.checking=false;
+    if(voice && !tts.active) $('#ttsStatus').textContent='Đã tìm thấy giọng tiếng Việt: '+voice.name+'. Nhấn Nghe để bắt đầu.';
+  });
+  $('#ttsRate').addEventListener('change',e=>{tts.rate=Number(e.target.value)||1;ttsSaveOptions();if(tts.active)$('#ttsStatus').textContent=`Đã chọn ${tts.rate}×. Tốc độ mới áp dụng ở đoạn tiếp theo.`;});
+  $('#ttsVoice').addEventListener('change',e=>{tts.voiceURI=e.target.value;ttsSaveOptions();if(tts.active)ttsStop('Đã đổi giọng đọc. Nhấn Nghe để bắt đầu từ trang hiện tại.');});
+  if(ttsSynth) {
+    if(typeof ttsSynth.addEventListener==='function') ttsSynth.addEventListener('voiceschanged',refreshTtsVoices);
+    else ttsSynth.onvoiceschanged=refreshTtsVoices;
+    refreshTtsVoices();
+  }
+  updateTtsControls();
   $$('[data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>{state.prefs.theme=btn.dataset.themeChoice;applyPrefs();}));
   $('#brightnessRange').addEventListener('input',e=>{state.prefs.brightness=+e.target.value;applyPrefs();});
   $('#smallerFont').addEventListener('click',()=>{state.prefs.font=Math.max(14,state.prefs.font-1);applyPrefs();repaginate(false);rememberProgress();});
