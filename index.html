@@ -1,0 +1,1246 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#eae7df" />
+  <title>Mộc Thư — Đọc và nghe sách</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Literata:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #292d28; --muted: #7a7d72; --bg: #f2efe9; --line: #dedcd3;
+      --green: #3f574c; --gold: #be9b62; --surface: #fffdf7;
+      --serif: 'Literata', Georgia, serif;
+      --sans: 'Be Vietnam Pro', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); font-family: var(--sans); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #c49e58; outline-offset: 3px; }
+    [hidden] { display: none !important; }
+    .icon { width: 18px; height: 18px; display: inline-block; flex-shrink: 0; }
+    .shell { width: min(1320px, calc(100% - 88px)); margin-inline: auto; }
+    .site-header { position: sticky; z-index: 50; top: 0; background: rgba(246, 243, 237, .92); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(60,65,56,.09); }
+    /* Khi kéo trang xuống trên điện thoại, header trượt ra ngoài màn hình.
+       Chỉ transform nên không làm dồn/giãn lại nội dung sách. */
+    @media (max-width:760px) {
+      .site-header { transition:transform .23s ease; }
+      .site-header.header-hidden { transform:translate3d(0,-105%,0); pointer-events:none; }
+    }
+    .header-inner { display:flex; align-items:center; justify-content:space-between; min-height:78px; gap:18px; }
+    .brand { border:0; background:none; display:flex; align-items:center; gap:13px; color:var(--ink); text-align:left; padding:0; }
+    .brand-mark { display:grid; place-items:center; width:43px; height:43px; background:var(--green); color:#f3e8d7; border-radius:12px; }
+    .brand-mark svg { width:23px; height:23px; }
+    .brand-name { display:block; font:600 25px/1 var(--serif); letter-spacing:.015em; }
+    .brand-sub { display:block; color:#818477; font-size:9px; letter-spacing:.2em; text-transform:uppercase; margin-top:4px; }
+    .head-links { display:flex; align-items:center; gap:32px; }
+    .nav-text { border:0; background:transparent; color:#5d625b; font-size:12px; font-weight:600; padding:10px 0; }
+    .nav-text:hover { color:var(--green); }
+    .nav-text.active { color:var(--green); border-bottom:2px solid var(--green); }
+    .admin-chip { display:inline-flex; align-items:center; gap:8px; border:1px solid #d2d2c7; border-radius:100px; background:#fdfcf8; padding:10px 15px; color:#505e51; font-weight:600; font-size:12px; }
+    .admin-chip:hover { border-color:var(--green); }
+    .admin-chip .icon { width:15px; height:15px; }
+    .mobile-admin { display:none; }
+    .landing { padding:54px 0 90px; }
+    .eyebrow { color:#8d805e; display:flex; align-items:center; gap:12px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.27em; }
+    .eyebrow:before { content:""; display:block; width:26px; height:1px; background:currentColor; }
+    .welcome { display:flex; justify-content:space-between; align-items:end; gap:30px; margin-top:13px; margin-bottom:42px; }
+    .welcome h1 { margin:0; font:500 clamp(50px,6.3vw,90px)/.93 var(--serif); letter-spacing:-.048em; }
+    .welcome h1 em { color:#8c976c; font-style:italic; }
+    .welcome p { max-width:310px; color:#777c70; font-size:12px; line-height:2; margin:0 0 9px; }
+    .featured { display:grid; grid-template-columns: 1fr 1.05fr; min-height:398px; overflow:hidden; background:#344d42; border-radius:7px; color:#f8f2e6; position:relative; }
+    .featured:after { content:""; position:absolute; inset:0; pointer-events:none; opacity:.14; background-image:url('data:image/svg+xml,%3Csvg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity=".22"/%3E%3C/svg%3E'); }
+    .feature-text { padding:51px 0 50px 64px; position:relative; z-index:2; display:flex; flex-direction:column; align-items:flex-start; }
+    .feature-label { display:flex; align-items:center; gap:12px; font-size:10px; letter-spacing:.25em; text-transform:uppercase; color:#ddd0b2; }
+    .feature-label:before { content:"✦"; font-size:14px; }
+    .feature-text h2 { max-width:510px; margin:35px 0 11px; font:500 clamp(42px,4.1vw,64px)/.98 var(--serif); letter-spacing:-.025em; }
+    .feature-text p { color:#d0d4c6; font-size:12px; line-height:2; margin:12px 0 25px; max-width:370px; }
+    .button-cream { background:#f3ebdb; color:#344c3f; border:0; display:flex; align-items:center; gap:16px; padding:15px 20px; border-radius:3px; font-size:12px; font-weight:700; }
+    .button-cream:hover { background:#fff; }
+    .feature-visual { position:relative; display:grid; place-items:center; min-height:380px; background:radial-gradient(ellipse at 55% 60%, #63766c 0%, transparent 66%); }
+    .feature-circles { position:absolute; width:350px; height:350px; border:1px solid rgba(242,232,206,.15); border-radius:50%; transform:translate(25px, 16px); }
+    .feature-circles:after { content:""; display:block; position:absolute; inset:30px; border:1px solid rgba(242,232,206,.13); border-radius:50%; }
+    .hero-book { --c1:#764a39; --c2:#3f2825; position:relative; width:225px; height:313px; transform:translate(0,20px) rotate(-12deg); filter:drop-shadow(33px 20px 18px rgba(11,25,21,.33)); }
+    .hero-book .cover-mock { height:100%; width:100%; }
+    .hero-book:after, .library-cover:after { content:""; position:absolute; top:2px; right:-9px; width:9px; height:calc(100% - 5px); background:repeating-linear-gradient(0deg,#d3c4a9 0px,#e7ddc9 2px,#f3e6d2 3px); transform:skewY(-15deg); box-shadow:3px 2px 4px rgba(0,0,0,.13); }
+    .shelf-header { display:flex; justify-content:space-between; align-items:center; gap:15px; margin:67px 0 25px; }
+    .shelf-header h2 { margin:5px 0 0; font:600 34px/1.1 var(--serif); }
+    .book-count { color:#7c8077; font-size:11px; }
+    .outline-btn { border:1px solid #c5c9bb; background:transparent; color:var(--green); padding:10px 16px; font-size:11px; font-weight:700; border-radius:3px; display:flex; align-items:center; gap:8px; }
+    .outline-btn:hover { background:#e8eae1; }
+    .shelf-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:26px; }
+    .book-item { min-width:0; border:1px solid #e4e1d8; padding:23px 22px 20px; border-radius:5px; background:rgba(255,255,255,.3); transition:transform .2s,box-shadow .2s; }
+    .book-item:hover { transform:translateY(-6px); box-shadow:0 14px 34px rgba(44,53,39,.10); }
+    .cover-slot { height:244px; display:grid; place-items:center; position:relative; padding-bottom:16px; }
+    .cover-slot:after { position:absolute; bottom:7px; height:12px; left:10%; right:10%; content:""; background:radial-gradient(ellipse, rgba(51,52,44,.23), transparent 68%); }
+    .library-cover { position:relative; width:145px; height:206px; filter:drop-shadow(11px 7px 9px rgba(45,44,32,.21)); transition:transform .22s; }
+    .book-item:hover .library-cover { transform:rotate(-3deg) translateY(-3px); }
+    .cover-mock { position:relative; isolation:isolate; background:linear-gradient(135deg,var(--c1,#54695b),var(--c2,#28392f)); color:#efe2c8; border-radius:2px 6px 6px 2px; padding:21px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; text-align:center; overflow:hidden; border-left:8px solid rgba(0,0,0,.20); box-shadow:inset 3px 0 5px rgba(255,255,255,.12),inset -2px 0 7px rgba(0,0,0,.24); }
+    .cover-mock:before { content:""; position:absolute; inset:11px; border:1px solid rgba(244,223,180,.37); pointer-events:none; }
+    .cover-mock:after { content:""; position:absolute; width:210px; height:210px; border-radius:50%; border:1px solid rgba(255,234,193,.17); bottom:-86px; left:50%; transform:translateX(-50%); pointer-events:none; }
+    .cover-art { height:54px; display:grid; place-items:center; opacity:.8; }
+    .cover-art svg { width:47px; height:47px; stroke-width:1; }
+    .cover-title { font:600 30px/.91 var(--serif); letter-spacing:.01em; display:block; position:relative; z-index:1; overflow-wrap:anywhere; }
+    .cover-author { font-size:9px; letter-spacing:.15em; text-transform:uppercase; opacity:.8; position:relative; z-index:1; }
+    .library-cover .cover-title { font-size:23px; }
+    .library-cover .cover-art svg { width:32px; height:32px; }
+    .library-cover .cover-art { height:33px; }
+    .library-cover .cover-mock { padding:17px; }
+    .library-cover .cover-author { font-size:7px; }
+    .book-meta { display:flex; justify-content:space-between; margin-top:14px; gap:4px; align-items:center; }
+    .book-genre { text-transform:uppercase; font-size:9px; font-weight:700; letter-spacing:.13em; color:#9e8465; }
+    .book-pages { color:#9b9c92; font-size:10px; }
+    .book-title { display:block; margin:7px 0 6px; font:600 25px/1.03 var(--serif); min-height:51px; }
+    .book-by { display:block; font-size:10px; color:#94958d; margin-bottom:16px; }
+    .read-btn { display:flex; justify-content:space-between; align-items:center; border:0; border-top:1px solid #e7e4dd; width:100%; padding:13px 0 0; background:transparent; font-size:11px; font-weight:700; color:var(--green); }
+    .read-btn:hover { color:#bd985b; }
+    .no-books { grid-column:1/-1; text-align:center; padding:45px; background:#fffdf9; border-radius:8px; }
+    .footer { border-top:1px solid var(--line); color:#a0a095; padding:25px 0; font-size:10px; display:flex; justify-content:space-between; gap:20px; }
+    /* reader */
+    body.reader-open { background:#dbdbd1; }
+    /* Thư viện có header, phòng đọc sách hoàn toàn không có header. */
+    body.reader-open .site-header { display:none !important; }
+    .reader-view { --page-bg:#fffaf0; --page-text:#373b33; --page-muted:#a49b87; --reader-bg:#dcddd6; --paper-shadow:rgba(35,32,27,.26); min-height:calc(100dvh - 78px); background:var(--reader-bg); color:var(--ink); transition:background .25s; padding-bottom:35px; }
+    .reader-view[data-theme="sepia"] { --page-bg:#eee2c7; --page-text:#514936; --page-muted:#a29573; --reader-bg:#ded2b8; --paper-shadow:rgba(64,49,23,.25); }
+    .reader-view[data-theme="dark"] { --page-bg:#242a2a; --page-text:#e3e1d3; --page-muted:#859591; --reader-bg:#161c1d; --paper-shadow:rgba(0,0,0,.7); }
+    .reader-controls { max-width:1250px; margin:auto; padding:23px 30px 13px; display:flex; align-items:center; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+    .back-btn { display:flex; align-items:center; gap:8px; background:transparent; color:#506055; border:0; font-size:11px; font-weight:700; }
+    .reader-view[data-theme="dark"] .back-btn { color:#c6cec6; }
+    .reader-book-name { text-align:center; font:600 20px/1 var(--serif); }
+    .reader-book-by { text-align:center; color:#8b9289; font-size:9px; margin-top:7px; }
+    .read-tools { display:flex; align-items:center; justify-content:end; gap:12px; }
+    .tool-group { display:flex; align-items:center; border:1px solid rgba(110,121,107,.25); background:rgba(255,255,255,.32); border-radius:5px; overflow:hidden; }
+    .reader-view[data-theme="dark"] .tool-group { background:#333d3d; border-color:#455250; }
+    .tool-btn { border:0; background:transparent; color:#536057; padding:10px 11px; display:grid; place-items:center; font-size:11px; min-width:37px; }
+    .tool-btn:hover { background:rgba(102,116,100,.12); }
+    .reader-view[data-theme="dark"] .tool-btn { color:#d4dcd7; }
+    .tool-btn.is-active { background:#4c6456; color:white !important; }
+    .tool-btn+.tool-btn { border-left:1px solid rgba(102,116,100,.15); }
+    .brightness-wrap { display:flex; align-items:center; gap:9px; font-size:10px; color:#5b675f; padding:0 2px; }
+    .brightness-wrap .icon { width:16px; height:16px; }
+    .brightness-wrap input { width:88px; accent-color:#536c57; }
+    .reader-view[data-theme="dark"] .brightness-wrap { color:#ced6d2; }
+    .book-area { display:flex; align-items:center; justify-content:center; gap:22px; padding:10px 18px; perspective:1800px; }
+    .page-nav-side { border:1px solid rgba(101,110,99,.16); border-radius:50%; background:rgba(255,255,255,.25); color:#78837a; width:44px; height:44px; display:grid; place-items:center; flex-shrink:0; }
+    .page-nav-side:hover:not(:disabled) { background:rgba(255,255,255,.6); color:#324b3a; }
+    .page-nav-side:disabled, .flip-button:disabled { opacity:.25; cursor:not-allowed; }
+    .reader-view[data-theme="dark"] .page-nav-side { background:#2a3434; color:#e2e8e2; border-color:#465050; }
+    .book-scene { width:min(980px,calc(100vw - 155px)); position:relative; filter:brightness(var(--reader-brightness, 1)); transition:filter .2s; }
+    .book-shell { height:clamp(500px,65vh,740px); min-height:0; position:relative; display:flex; width:100%; transform-style:preserve-3d; filter:drop-shadow(0px 22px 17px var(--paper-shadow)); border-radius:3px 10px 10px 3px; background:var(--page-bg); }
+    .book-shell:after { content:""; position:absolute; inset:0 49.85% 0 auto; width:12px; pointer-events:none; z-index:3; background:linear-gradient(90deg,transparent,rgba(0,0,0,.17) 45%,rgba(255,255,255,.07) 95%,transparent); }
+    .paper { flex:1; min-width:0; width:50%; height:100%; position:relative; padding:30px clamp(26px,3.7vw,57px) 21px; background-color:var(--page-bg); color:var(--page-text); display:flex; flex-direction:column; overflow:hidden; }
+    .paper-left { background-image:linear-gradient(270deg,rgba(0,0,0,.065),transparent 9%,transparent 94%,rgba(255,255,255,.17)); border-radius:3px 0 0 3px; }
+    .paper-right { background-image:linear-gradient(90deg,rgba(0,0,0,.11),transparent 9%,transparent 94%,rgba(255,255,255,.12)); border-radius:0 5px 5px 0; }
+    .reader-view[data-theme="dark"] .paper-left { background-image:linear-gradient(270deg,rgba(0,0,0,.45),transparent 14%); }
+    .reader-view[data-theme="dark"] .paper-right { background-image:linear-gradient(90deg,rgba(0,0,0,.5),transparent 12%); }
+    .paper-running { height:38px; flex-shrink:0; display:flex; align-items:flex-start; justify-content:space-between; font:600 10px/1.3 var(--serif); letter-spacing:normal; text-transform:uppercase; color:var(--page-muted); border-bottom:1px solid currentColor; opacity:.9; }
+    .paper-running span { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:70%; }
+    .paper-text { flex:1; min-height:0; font-size:var(--reading-size, 17px); line-height:1.83; font-family:var(--serif); overflow:hidden; padding-top:20px; overflow-wrap:break-word; }
+    .paper-text p { margin:0 0 .9em; text-indent:1em; }
+    .paper-text p:first-child { text-indent:0; }
+    .paper-text .empty-page { color:var(--page-muted); font-style:italic; margin-top:40%; text-align:center; }
+    .paper-number { height:23px; flex-shrink:0; font:600 15px/1 var(--serif); display:flex; align-items:end; justify-content:center; color:var(--page-muted); }
+    .paper-decoration { position:absolute; opacity:.08; font:180px/1 var(--serif); bottom:15px; right:35px; pointer-events:none; }
+    .page-flip { position:absolute; width:50%; height:100%; top:0; z-index:5; transform-style:preserve-3d; pointer-events:none; }
+    .page-flip.forward { left:50%; transform-origin:left center; animation:flip-forward .76s cubic-bezier(.58,.04,.29,1) forwards; }
+    .page-flip.backward { left:0%; transform-origin:right center; animation:flip-backward .76s cubic-bezier(.58,.04,.29,1) forwards; }
+    .flip-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden; }
+    .flip-face.back { transform:rotateY(180deg); }
+    .flip-face .paper { width:100%; height:100%; }
+    .page-flip.forward .front { box-shadow:inset 15px 0 18px rgba(0,0,0,.1); }
+    .page-flip.backward .front { box-shadow:inset -15px 0 18px rgba(0,0,0,.1); }
+    @keyframes flip-forward { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(-180deg)} }
+    @keyframes flip-backward { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(180deg)} }
+    .reader-bottom { max-width:1100px; margin:21px auto 0; padding:0 35px; display:flex; justify-content:center; align-items:center; gap:24px; }
+    .page-jump { display:flex; align-items:center; gap:9px; color:#778779; font-size:11px; font-weight:600; }
+    .page-jump select { max-width:175px; min-height:38px; padding:7px 12px; border-radius:8px; border:1px solid rgba(101,110,99,.26); background:rgba(255,255,255,.55); color:#415647; font-size:13px; cursor:pointer; }
+    .page-nav-cluster { display:flex; align-items:center; justify-content:center; gap:14px; }
+    .flip-button { display:flex; align-items:center; gap:8px; background:transparent; border:0; font-size:11px; font-weight:700; color:#657667; white-space:nowrap; }
+    .flip-button .nav-icon { font-size:16px; line-height:1; }
+    .flip-button .nav-label { line-height:1; }
+    .reader-view[data-theme="dark"] .flip-button { color:#cdd8ce; }
+    .page-status { white-space:nowrap; font-size:11px; color:#859084; min-width:76px; text-align:center; }
+    .reader-view[data-theme="dark"] .page-status { color:#b4c0b7; }
+    .reader-view[data-theme="dark"] .page-jump { color:#b4c0b7; }
+    .reader-view[data-theme="dark"] .page-jump select { background:#2a3434; color:#e2e8e2; border-color:#465050; }
+    .reader-hint { text-align:center; margin:17px auto 0; font-size:10px; color:#a2a8a0; }
+    .reader-view[data-theme="dark"] .reader-hint { color:#798782; }
+    .measure-text { position:fixed; top:-100000px; left:-100000px; visibility:hidden; pointer-events:none; overflow:visible; font-family:var(--serif); line-height:1.83; overflow-wrap:break-word; }
+    .paper-text, .measure-text { letter-spacing:normal; word-spacing:normal; font-kerning:normal; font-variant-ligatures:normal; text-rendering:optimizeLegibility; }
+    .measure-text p { margin:0 0 .9em; text-indent:1em; }
+    .measure-text p:first-child { text-indent:0; }
+
+    /* Trình đọc sách bằng giọng nói miễn phí - Web Speech API */
+    .tts-panel { width:min(930px,calc(100% - 32px)); margin:23px auto 0; padding:18px 20px; border:1px solid rgba(93,111,95,.2); border-radius:12px; background:rgba(255,253,247,.62); box-shadow:0 8px 22px rgba(40,52,43,.05); }
+    .tts-header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; }
+    .tts-title { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#3d5949; }
+    .tts-badge { font-size:10px; letter-spacing:.035em; color:#748778; }
+    .tts-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .tts-actions button { min-height:37px; border:1px solid #bdcbbd; border-radius:7px; padding:7px 12px; font-size:11px; font-weight:700; background:transparent; color:#40584b; }
+    .tts-actions button:hover:not(:disabled) { background:rgba(96,126,103,.13); }
+    .tts-actions button:disabled { opacity:.45; cursor:not-allowed; }
+    .tts-actions .tts-primary { background:#445f4f; border-color:#445f4f; color:#fff; }
+    .tts-actions .tts-primary:hover:not(:disabled) { background:#2d4739; }
+    .tts-select { display:flex; align-items:center; gap:7px; font-size:11px; color:#68756c; }
+    .tts-select select { max-width:200px; min-height:36px; padding:5px 8px; border:1px solid #c8d0c5; border-radius:7px; background:#fffdf7; color:#334b3b; font-size:11px; }
+    .tts-status { margin:12px 0 0; min-height:16px; font-size:11px; color:#728074; line-height:1.6; }
+    .tts-help { margin:9px 0 0; font-size:11px; line-height:1.75; padding:11px 12px; border-radius:7px; border:1px solid #e6d8ac; background:#fff7df; color:#705a28; }
+    .tts-help a { color:inherit; text-decoration:underline; }
+    .reader-view[data-theme="dark"] .tts-panel { background:#252e2e; border-color:#465451; box-shadow:none; }
+    .reader-view[data-theme="dark"] .tts-title { color:#dcebdc; }
+    .reader-view[data-theme="dark"] .tts-badge,.reader-view[data-theme="dark"] .tts-status,.reader-view[data-theme="dark"] .tts-select { color:#b5c3ba; }
+    .reader-view[data-theme="dark"] .tts-actions button { color:#e0e8df; border-color:#52635a; }
+    .reader-view[data-theme="dark"] .tts-actions .tts-primary { background:#597761; border-color:#597761; color:white; }
+    .reader-view[data-theme="dark"] .tts-select select { background:#202929; border-color:#52635a; color:#e0e8df; }
+    .reader-view[data-theme="dark"] .tts-help { border-color:#756543; background:#393527; color:#f5dca0; }
+    @media (max-width:760px) { .tts-panel{width:calc(100% - 22px);margin-top:16px;padding:13px 12px}.tts-header{align-items:flex-start}.tts-title{font-size:12px}.tts-actions{gap:8px}.tts-select{flex:1 1 125px}.tts-select select{min-width:0;width:100%;max-width:100%} }
+
+    /* Gemini AI TTS - test riêng cho admin, không làm thay đổi kích thước trang giấy */
+    .gemini-preview { width:min(930px,calc(100% - 32px));margin:14px auto 0;padding:16px 20px;border:1px solid rgba(93,111,95,.3);border-radius:12px;background:rgba(255,253,247,.62);color:#394d3f; }
+    .gemini-preview h3 { margin:0 0 7px;font-size:14px; }
+    .gemini-preview p { margin:6px 0 10px;font-size:11px;line-height:1.7; }
+    .gemini-preview textarea { display:block;width:100%;min-height:94px;resize:vertical;padding:10px 12px;border:1px solid #bdcbbd;border-radius:7px;background:#fffdf7;color:#334b3b;font:12px/1.65 var(--sans); }
+    .gemini-preview .gemini-actions {display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0;}
+    .gemini-preview button {border:0;border-radius:7px;padding:10px 14px;background:#445f4f;color:white;font-size:11px;font-weight:700;}
+    .gemini-preview button:disabled {opacity:.6;cursor:wait;}
+    .gemini-preview audio {display:block;width:100%;margin:10px 0;}
+    .gemini-preview a {color:#365b47;font-size:11px;font-weight:600;}
+    .reader-view[data-theme="dark"] .gemini-preview {background:#252e2e;color:#dcebdc;border-color:#465451;}
+    .reader-view[data-theme="dark"] .gemini-preview textarea {background:#202929;border-color:#52635a;color:#e0e8df;}
+    .reader-view[data-theme="dark"] .gemini-preview a {color:#c5e2c6;}
+    @media (max-width:760px) { .gemini-preview {width:calc(100% - 22px);padding:13px 12px;} }
+    /* modal */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(21,30,25,.55); backdrop-filter:blur(5px); display:grid; place-items:center; z-index:100; padding:20px; }
+    .modal { width:min(440px,100%); max-height:calc(100dvh - 30px); overflow:auto; background:#faf8f2; color:#32382f; border-radius:9px; box-shadow:0 25px 90px rgba(0,0,0,.26); padding:30px; }
+    .modal.wide { width:min(840px,100%); }
+    .modal-top { display:flex; justify-content:space-between; align-items:start; gap:15px; }
+    .modal h2 { font:600 39px/1 var(--serif); margin:0 0 9px; }
+    .modal-subtitle { margin:0 0 26px; font-size:12px; line-height:1.8; color:#7a8176; }
+    .close-btn { border:0; background:transparent; color:#768477; font-size:25px; padding:0; line-height:1; }
+    .field { display:flex; flex-direction:column; gap:7px; margin-bottom:15px; }
+    .field label { font-size:10px; text-transform:uppercase; font-weight:700; letter-spacing:.13em; color:#5e6c60; }
+    .field input, .field textarea, .field select { width:100%; padding:11px 13px; border-radius:4px; border:1px solid #d5dacf; background:#fff; color:#2b332c; font-size:13px; }
+    .field textarea { min-height:270px; resize:vertical; line-height:1.75; }
+    .field small { font-size:10px; color:#96998b; }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:17px; }
+    .solid-btn { width:100%; border:0; background:#435d4d; color:white; padding:14px 18px; border-radius:4px; font-weight:700; font-size:12px; }
+    .solid-btn:hover { background:#2e4436; }
+    .error { color:#aa493d; font-size:11px; margin:-4px 0 13px; }
+    .admin-menu-btn { width:100%; display:flex; justify-content:space-between; align-items:center; padding:15px 4px; background:transparent; border:0; border-bottom:1px solid #e2e4da; font-size:13px; font-weight:600; color:#4c624f; text-align:left; }
+    .admin-menu-btn:hover { color:#b08c56; }
+    .admin-note { font-size:11px; color:#99998e; line-height:1.7; }
+    .palette { display:flex; gap:10px; flex-wrap:wrap; }
+    .palette-option { height:38px; width:38px; border-radius:50%; border:3px solid white; outline:1px solid #d7d7d0; }
+    .palette-option.selected { outline:2px solid #3c5946; }
+    .modal-actions { display:flex; gap:11px; margin-top:12px; }
+    .modal-actions .solid-btn { flex:1; }
+    .danger-btn { border:1px solid #c89182; color:#a85040; background:transparent; border-radius:4px; padding:12px 18px; font-size:11px; font-weight:700; }
+    .danger-btn:hover { background:#fff0ec; }
+    /* Nút sửa sách chỉ nằm CUỐI phòng đọc, sau trang giấy và các công cụ.
+       Không dùng fixed/absolute để tránh che chữ; chiều cao sách không phụ thuộc nút này. */
+    .reader-admin-action { width:fit-content; max-width:calc(100% - 32px); margin:22px auto 0; padding:12px 20px;
+      display:flex; align-items:center; justify-content:center; gap:10px; min-height:44px;
+      background:#48634f; color:white; border:1px solid #607e69; border-radius:9px;
+      box-shadow:0 6px 20px rgba(0,0,0,.1); font-size:12px; font-weight:700; }
+    .reader-admin-action:hover { background:#324c3c; }
+    .reader-view[data-theme="dark"] .reader-admin-action { background:#445f51; border-color:#607a6b; color:#f6f7ed; }
+    .toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(40px); opacity:0; transition:opacity .2s,transform .2s; background:#294638; color:white; border-radius:6px; padding:13px 19px; box-shadow:0 9px 30px rgba(0,0,0,.2); font-size:12px; z-index:150; pointer-events:none; text-align:center; max-width:calc(100vw - 28px); }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    @media (max-width:1100px) { .shelf-grid{grid-template-columns:repeat(3,minmax(0,1fr))} .welcome h1{font-size:68px} .book-area{gap:9px} .book-scene{width:min(980px,calc(100vw - 120px))} .paper{padding-inline:29px;} }
+    @media (max-width:760px) {
+      .shell { width:calc(100% - 36px); }
+      .site-header .header-inner{min-height:65px} .brand-mark{width:39px;height:39px} .brand-name{font-size:23px}
+      .head-links{gap:11px} .head-links .nav-text{display:none} .admin-chip{padding:9px 11px}
+      .landing{padding-top:38px} .welcome{display:block;margin-bottom:30px} .welcome h1{font-size:clamp(49px,11vw,70px)} .welcome p{max-width:500px;margin-top:20px}
+      .featured{grid-template-columns:1fr; min-height:610px} .feature-text{padding:39px 33px 5px} .feature-text h2{font-size:55px;margin-top:22px}.feature-text p{margin:6px 0 20px}
+      .feature-visual{min-height:250px}.hero-book{width:154px;height:222px;transform:translate(0,0) rotate(-12deg)}.hero-book .cover-title{font-size:23px}
+      .feature-circles{width:260px;height:260px} .shelf-header{margin-top:45px}.shelf-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.book-item{padding:12px}
+      .cover-slot{height:213px}.library-cover{width:121px;height:178px} .book-title{font-size:22px;min-height:43px}.book-by{font-size:9px}
+      .reader-controls{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px 8px;padding:12px 14px 8px}.reader-title-block{display:none}.back-btn{justify-self:start}.read-tools{justify-self:end;gap:6px}
+      .brightness-wrap{gap:4px} .brightness-wrap .icon{display:none} .brightness-wrap input{width:50px} .tool-btn{padding:8px 8px;min-width:30px}.reader-book-name{font-size:18px}.reader-book-by{margin-top:3px}
+      .book-area{gap:0;padding:6px 0 2px}.page-nav-side{display:none}.page-nav-side .icon{width:16px}
+      .book-scene{width:min(620px,calc(100vw - 24px))}.book-shell{height:clamp(520px,calc(100dvh - 210px),760px)}
+      .paper{width:100%;padding:25px clamp(23px,6vw,45px) 17px}.paper-right{display:none}.paper-left{border-radius:4px}.book-shell:after{display:none}
+      .page-flip{width:100%}.page-flip.forward,.page-flip.backward{left:0}.page-flip .paper{display:flex}
+      .paper-text{padding-top:16px;line-height:1.78}.reader-bottom{flex-direction:column;gap:9px;padding:0 12px;margin-top:10px}.page-jump{justify-content:center;gap:9px;font-size:12px}.page-jump select{min-width:134px;min-height:39px;font-size:16px}.page-nav-cluster{width:auto;gap:14px}.page-status{min-width:76px;font-size:13px;font-weight:600}.flip-button{font-size:10px}.nav-arrow{width:44px;height:44px;border:1px solid rgba(101,110,99,.2);border-radius:999px;display:grid;place-items:center;padding:0;background:rgba(255,255,255,.35)}.nav-arrow .nav-label{display:none}.nav-arrow .nav-icon{font-size:20px}.reader-view[data-theme="dark"] .nav-arrow{background:#2a3434;border-color:#465050}.reader-hint{display:none}
+    }
+    @media (max-width:760px) { .reader-admin-action { margin-top:18px; margin-bottom:4px; } }
+    @media (max-width:420px) { .cover-slot{height:182px}.library-cover{width:103px;height:150px}.library-cover .cover-mock{padding:12px}.library-cover .cover-title{font-size:18px}.library-cover .cover-author{font-size:6px}.book-genre{font-size:8px}.book-pages{font-size:9px}.book-title{font-size:20px}.field-row{grid-template-columns:1fr;gap:0}.featured{min-height:610px}.reader-controls{padding-inline:8px}.tool-btn{min-width:26px;padding:7px}.book-scene{width:calc(100vw - 16px)}.book-shell{height:clamp(500px,calc(100dvh - 205px),720px)}.paper{padding-inline:21px}.modal{padding:20px} }
+    /* Mobile: 100svh là chiều cao vùng nhìn thấy NHỎ NHẤT, không co giãn
+       theo việc Safari/Chrome thu gọn hay hiện lại thanh địa chỉ.
+       100vh là fallback cho trình duyệt cũ. */
+    @media (max-width:760px) {
+      .reader-view { min-height:calc(100svh - 65px); }
+      .book-shell {
+        height:clamp(540px,calc(100vh - 125px),780px);
+        height:clamp(540px,calc(100svh - 125px),780px);
+      }
+    }
+    @media (prefers-reduced-motion:reduce) { *{scroll-behavior:auto !important;transition:none !important;} .page-flip.forward,.page-flip.backward{animation-duration:.05s;} }
+
+    /* Audiobook phát file thật; audio tạo chỉ dành cho quản trị viên. */
+    #ttsPanel,#geminiPreview { display:none !important; }
+    .ab-panel{width:min(930px,calc(100% - 28px));margin:20px auto 0;padding:18px 20px;border:1px solid rgba(83,109,93,.24);border-radius:12px;background:rgba(255,253,247,.75);color:#354a3d}
+    .ab-title{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:13px;font-weight:700;font-size:14px}
+    .ab-notice{font-size:12px;line-height:1.6;color:#718075;margin:10px 0}
+    .ab-player{display:grid;gap:11px}
+    .ab-time{display:flex;justify-content:space-between;font-size:11px;color:#7d887e;font-variant-numeric:tabular-nums}
+    .ab-seek{width:100%;accent-color:#466653;cursor:pointer}
+    .ab-ctrls{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px}
+    .ab-ctrls button{min-height:44px;min-width:44px;padding:8px 12px;border:1px solid #bfcebf;background:transparent;border-radius:100px;color:#375740;font-weight:700}
+    .ab-ctrls .ab-play{background:#425d4c;color:#fff;border-color:#425d4c;min-width:110px}
+    .ab-ctrls select,.ab-admin select{min-height:38px;border:1px solid #b9c9bb;border-radius:8px;background:transparent;color:inherit;padding:5px 10px}
+    .ab-ctrls label{display:flex;align-items:center;gap:5px;font-size:11px}
+    .ab-admin{margin-top:18px;border-top:1px solid #cdd5ca;padding-top:14px;font-size:12px}
+    .ab-admin summary{cursor:pointer;font-weight:700;padding:8px 0}
+    .ab-admin-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0}
+    .ab-admin button{border:1px solid #bdcbbd;background:transparent;color:inherit;padding:10px 13px;border-radius:8px;font-weight:650}
+    .ab-admin button:disabled{opacity:.45;cursor:not-allowed}
+    .ab-admin input[type=file]{width:100%;font-size:12px;max-width:400px}
+    .ab-admin progress{width:100%;height:13px;accent-color:#506d55}
+    .reader-view[data-theme=dark] .ab-panel{background:#252e2e;color:#dcebdc;border-color:#465451}
+    .reader-view[data-theme=dark] .ab-ctrls button,.reader-view[data-theme=dark] .ab-admin button{border-color:#52635a;color:#dcebdc}
+    .reader-view[data-theme=dark] .ab-ctrls .ab-play{color:#fff}
+    .reader-view[data-theme=dark] .ab-ctrls select,.reader-view[data-theme=dark] .ab-admin select{color:#e2e7dd;background:#252e2e}
+    @media(max-width:760px){.ab-panel{padding:13px 12px;margin-top:14px}.ab-ctrls{gap:7px}.ab-ctrls button{min-width:42px}.ab-title{font-size:13px}}
+  </style>
+</head>
+<body>
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner shell">
+      <button class="brand" id="homeBrand" aria-label="Về thư viện">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1Z"/><path d="M12 5v14"/></svg></span>
+        <span><span class="brand-name">mộc thư.</span><span class="brand-sub">a little reading corner</span></span>
+      </button>
+      <nav class="head-links" aria-label="Điều hướng chính">
+        <button class="nav-text active" id="libraryNav">Thư viện</button>
+        <button class="nav-text" id="continueNav">Đọc tiếp</button>
+        <button class="admin-chip" id="adminButton"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21v-2a7.5 7.5 0 0 1 15 0v2"/></svg><span id="adminButtonText">Đăng nhập Admin</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="landing shell" id="libraryView">
+    <div class="eyebrow">Một không gian dành cho những câu chuyện</div>
+    <section class="welcome"><h1>Chạm vào trang sách.<br/><em>Lạc vào thế giới.</em></h1><p>Nơi mỗi câu chữ đều có thời gian để thở. Chọn một cuốn sách, thả mình vào những trang giấy và đọc theo cách bạn thích.</p></section>
+    <section class="featured" aria-label="Sách nổi bật">
+      <div class="feature-text"><span class="feature-label">Lời mời từ thư viện</span><h2 id="featuredTitle">Một hành trình bắt đầu từ trang đầu tiên.</h2><p id="featuredDesc">Khám phá câu chuyện đang chờ bạn, từng trang một.</p><button class="button-cream" id="featuredRead">Bắt đầu đọc <span aria-hidden="true">↗</span></button></div>
+      <div class="feature-visual"><div class="feature-circles"></div><div class="hero-book" id="featuredCover"></div></div>
+    </section>
+    <div class="shelf-header"><div><div class="eyebrow">Tủ sách riêng</div><h2>Những cuốn sách của bạn</h2></div><div style="display:flex;gap:14px;align-items:center"><span class="book-count" id="bookCount"></span><button class="outline-btn" id="newBookTop" hidden><span aria-hidden="true">＋</span> Thêm sách</button></div></div>
+    <section class="shelf-grid" id="booksGrid" aria-label="Danh sách sách"></section>
+  </main>
+
+  <main class="reader-view" id="readerView" data-theme="light" hidden>
+    <div class="reader-controls">
+      <button class="back-btn" id="backToShelf"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 18-6-6 6-6"/></svg> Thư viện</button>
+      <div class="reader-title-block"><div class="reader-book-name" id="readerBookTitle"></div><div class="reader-book-by" id="readerBookAuthor"></div></div>
+      <div class="read-tools">
+        <div class="tool-group" aria-label="Màu nền đọc">
+          <button class="tool-btn is-active" data-theme-choice="light" title="Nền sáng" aria-label="Nền sáng">☀</button>
+          <button class="tool-btn" data-theme-choice="sepia" title="Nền giấy ấm" aria-label="Nền giấy ấm">◐</button>
+          <button class="tool-btn" data-theme-choice="dark" title="Chế độ tối" aria-label="Chế độ tối">☾</button>
+        </div>
+        <div class="tool-group" aria-label="Cỡ chữ"><button class="tool-btn" id="smallerFont" title="Giảm cỡ chữ">A−</button><button class="tool-btn" id="biggerFont" title="Tăng cỡ chữ">A+</button></div>
+        <label class="brightness-wrap" title="Giảm độ sáng trang giấy"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><input id="brightnessRange" type="range" min="45" max="100" value="100" aria-label="Độ sáng trang giấy" /></label>
+      </div>
+    </div>
+    <div class="book-area">
+      <button class="page-nav-side" id="prevSide" aria-label="Trang trước"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div class="book-scene" id="bookScene"><div class="book-shell" id="bookShell"><div class="paper paper-left" id="leftPaper"><div class="paper-running"><span></span><span>✧</span></div><div class="paper-text"></div><div class="paper-number"></div></div><div class="paper paper-right" id="rightPaper"><div class="paper-running"><span></span><span>✧</span></div><div class="paper-text"></div><div class="paper-number"></div></div></div></div>
+      <button class="page-nav-side" id="nextSide" aria-label="Trang sau"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+    <div class="reader-bottom">
+      <label class="page-jump" for="pageSelect">Đến trang <select id="pageSelect" aria-label="Chọn trang muốn đọc"><option value="0">Trang 1</option></select></label>
+      <div class="page-nav-cluster">
+        <button class="flip-button nav-arrow" id="prevPage" aria-label="Trang trước"><span class="nav-icon" aria-hidden="true">←</span><span class="nav-label">Trang trước</span></button>
+        <span class="page-status" id="pageStatus" aria-live="polite"></span>
+        <button class="flip-button nav-arrow" id="nextPage" aria-label="Trang sau"><span class="nav-label">Trang sau</span><span class="nav-icon" aria-hidden="true">→</span></button>
+      </div>
+    </div>
+
+<section class="ab-panel" id="abPanel" aria-label="Trình phát sách nói">
+  <div class="ab-title"><span>🎧 Sách nói Mộc Thư</span><span id="abType" style="font-size:10px;font-weight:400">MP3 / WAV</span></div>
+  <p class="ab-notice" id="abNotice">Đang kiểm tra bản sách nói...</p>
+  <div class="ab-player" id="abPlayer" hidden>
+    <audio id="abAudio" preload="metadata" playsinline></audio>
+    <input class="ab-seek" id="abSeek" type="range" min="0" max="1000" value="0" aria-label="Tua thời gian nghe" />
+    <div class="ab-time"><span id="abElapsed">00:00</span><span id="abSegment">Phần 1</span><span id="abDuration">00:00</span></div>
+    <div class="ab-ctrls">
+      <button id="abBack" type="button" aria-label="Lùi 15 giây">↶ 15</button>
+      <button id="abPlay" class="ab-play" type="button">▶ Phát</button>
+      <button id="abForward" type="button" aria-label="Tua 15 giây">15 ↷</button>
+      <label>Tốc độ <select id="abRate"><option value="0.75">0.75×</option><option value="1">1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select></label>
+    </div>
+  </div>
+  <details id="abAdmin" class="ab-admin" hidden>
+    <summary>⚙ Quản lý audio (chỉ Admin)</summary>
+    <p>Chọn một trong hai cách: tải file MP3/WAV lên, hoặc để Gemini tạo từng đoạn cho <b>toàn bộ sách</b> và lưu từng đoạn lên Vercel Blob.</p>
+    <div class="ab-admin-actions"><input id="abFile" type="file" accept=".mp3,.wav,audio/mpeg,audio/wav,audio/x-wav" aria-label="Chọn MP3 hoặc WAV" /><button id="abUpload" type="button">↑ Tải audio lên</button></div>
+    <div class="ab-admin-actions"><label>Giọng Gemini <select id="abVoice"><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Charon">Charon</option></select></label><button id="abGenerate" type="button">✨ Tạo giọng cho toàn sách</button><button id="abStopGenerate" type="button" hidden>⏹ Dừng sau đoạn hiện tại</button></div>
+    <progress id="abProgress" value="0" max="1" hidden></progress>
+    <p id="abAdminStatus" class="ab-notice" role="status">Nếu đang tạo dở, bấm tạo lại để tiếp tục. Giữ trang này mở trong lúc xử lý.</p>
+    <p class="ab-notice">Khi chỉnh sửa nội dung sách, audio Gemini cũ sẽ được đánh dấu cần tạo lại. Upload file MP3 là cách ổn định nhất khi muốn nghe liên tục lúc khóa màn hình iPhone.</p>
+  </details>
+</section>
+    <section class="tts-panel" id="ttsPanel" aria-label="Đọc sách bằng giọng nói">
+      <div class="tts-header"><div class="tts-title">🔊 Nghe sách bằng giọng nói</div><span class="tts-badge">Miễn phí · Giọng đọc thiết bị</span></div>
+      <div class="tts-actions">
+        <button class="tts-primary" id="ttsPlay" type="button">▶ Nghe từ trang này</button>
+        <button id="ttsPause" type="button" hidden>⏸ Tạm dừng</button>
+        <button id="ttsStop" type="button" disabled>■ Dừng</button>
+        <button id="ttsCheckVoice" type="button" title="Tải lại danh sách giọng nói tiếng Việt">↻ Kiểm tra giọng</button>
+        <label class="tts-select">Tốc độ <select id="ttsRate" aria-label="Tốc độ đọc">
+          <option value="0.75">0.75×</option><option value="0.9">0.9×</option><option value="1" selected>1×</option><option value="1.15">1.15×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+        </select></label>
+        <label class="tts-select">Giọng đọc <select id="ttsVoice" aria-label="Giọng đọc tiếng Việt"><option value="">Tự động (tiếng Việt)</option></select></label>
+      </div>
+      <p class="tts-status" id="ttsStatus" role="status" aria-live="polite">Nhấn Nghe để đọc từ trang hiện tại. Tự lật trang khi đọc xong.</p>
+      <p class="tts-help" id="ttsHelp" hidden>⚠ Không có giọng đọc tiếng Việt (<strong>vi-VN</strong>) mà trang web có thể sử dụng. Trên Windows: mở <strong>Settings → Time & language → Language & region → Add a language</strong>, cài <strong>Vietnamese</strong> cùng tính năng <strong>Text-to-speech</strong> nếu được cung cấp. Sau đó đóng/mở lại Chrome hoặc Edge và bấm <strong>↻ Kiểm tra giọng</strong>. Một số giọng trong nút “Đọc to” của Edge không xuất hiện trong danh sách giọng dành cho website. <a href="https://support.microsoft.com/en-us/accessibility/windows/narrator/appendix-a-supported-languages-and-voices" target="_blank" rel="noopener noreferrer">Hướng dẫn Microsoft</a>.</p>
+    </section>
+    <section class="gemini-preview" id="geminiPreview" hidden aria-label="Thử giọng đọc Gemini AI cho admin">
+      <h3>✨ Thử Gemini Flash TTS (chỉ Admin)</h3>
+      <p>Thử tạo file WAV tiếng Việt cho đoạn ngắn ở trang hiện tại. Dùng Gemini API Free Tier (theo hạn mức project), tối đa 8 lần thử/ngày. File chỉ ở trong phiên trình duyệt này, <strong>chưa tự lưu vào sách</strong>.</p>
+      <label for="geminiText" style="font-size:11px;font-weight:700;">Đoạn văn để tạo giọng</label>
+      <textarea id="geminiText" maxlength="240" placeholder="Mở một trang sách rồi bấm Lấy nội dung trang..." spellcheck="false"></textarea>
+      <div class="gemini-actions">
+        <button id="geminiFromPage" type="button">↻ Lấy nội dung trang</button>
+        <button id="geminiGenerate" type="button">✨ Tạo giọng Gemini</button>
+      </div>
+      <p id="geminiStatus" role="status" aria-live="polite">Bản thử nghiệm: cần đăng nhập Admin và cấu hình GEMINI_API_KEY trên Vercel.</p>
+      <audio controls id="geminiAudio" preload="none" hidden aria-label="Phát đoạn đọc Gemini"></audio>
+      <a id="geminiDownload" href="#" download="mocthu-gemini.wav" hidden>↓ Tải file âm thanh WAV</a>
+    </section>
+    <div class="reader-hint">Nhấn phím ← → hoặc chạm vào nút hai bên để lật trang · Vị trí đọc được lưu tự động</div>
+    <button class="reader-admin-action" id="editCurrent" title="Chỉnh sửa cuốn sách" hidden aria-label="Chỉnh sửa cuốn sách"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4L16.5 3.5Z"/></svg><span>Chỉnh sửa sách này</span></button>
+  </main>
+
+  <footer class="footer shell" id="siteFooter"><span>© Mộc Thư — Một chốn bình yên giữa những con chữ.</span><span>Made for stories, made for you ✦</span></footer>
+  <div class="modal-backdrop" id="modalBackdrop" hidden><div class="modal" id="modalContainer" role="dialog" aria-modal="true" aria-labelledby="modalHeading"></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="measure-text" id="measureText" aria-hidden="true"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const KEYS = { books: 'mocthu-books-v1', progress: 'mocthu-progress-v1', prefs: 'mocthu-prefs-v1' };
+  const THEMES = { light:'Sáng', sepia:'Giấy ấm', dark:'Tối' };
+  const COVERS = [
+    ['#526e5e','#263f35'], ['#804a3b','#442b2a'], ['#475c75','#253347'],
+    ['#9b805c','#59482f'], ['#7b6679','#3a354b'], ['#506568','#213b3f'],
+  ];
+  const SAMPLE_ONE = `Chương 1 — Buổi sáng không còn tiếng người\n\nBuổi sáng đến rất chậm. Ánh nắng len qua những tán cây cao, vẽ những vệt vàng nhạt trên mặt đất ẩm. Không có còi xe, không có lời rao hàng và cũng chẳng có âm thanh nào của thành phố mà họ từng biết. Chỉ còn tiếng gió, tiếng chim và một khoảng im lặng sâu đến mức có thể nghe rõ nhịp tim của chính mình.\n\nDanh là người đầu tiên tỉnh dậy. Anh chống tay ngồi dậy, đưa mắt tìm quán cà phê, con đường, những tòa nhà quen thuộc. Nhưng ở nơi từng có các dãy phố chỉ là những rặng cây xanh vươn dài tới tận chân trời. Anh dụi mắt, nghĩ rằng mình còn đang mơ.\n\nNhật xuất hiện từ bên kia bụi cỏ, tay vẫn nắm chặt chiếc điện thoại không có sóng. "Tao vừa quay thử một đoạn video," cậu nói, giọng khàn đi. "Nhưng tao không biết gửi cho ai nữa."\n\nAnh Thuận cúi xuống kiểm tra một mảnh kim loại nhặt được gần bờ suối. Anh xoay nó trong tay, suy nghĩ rất lâu rồi bảo: "Nếu đây là tất cả những gì chúng ta còn có, vậy thì phải bắt đầu từ những thứ nhỏ nhất."\n\nAnh Phùng không nói gì. Anh đang nhìn hướng nắng, hình dung ra một mái nhà, một khoảng sân, một nơi trú ẩn nằm cao hơn dòng nước. Trong đầu anh, những bản vẽ vô hình bắt đầu xuất hiện.\n\nChẳng ai biết vì sao thế giới thay đổi. Nhưng cả bốn đều biết một điều: trước khi tìm được câu trả lời, họ phải sống qua đêm nay.\n\nChương 2 — Ngọn lửa đầu tiên\n\nBuổi chiều, họ đi men theo dòng suối. Nhật dùng điện thoại ghi lại từng dấu mốc, cho đến khi biểu tượng pin đỏ xuất hiện. Cậu nhìn nó, buồn cười một cách cay đắng: cả đời chỉnh sửa video, vậy mà giờ đây thứ quý nhất lại là vài phần trăm pin còn lại.\n\nDanh lựa những chiếc lá có mùi thơm, nhưng nhất quyết không nếm một loại cây nào chưa biết rõ. Anh đun nước trong một chiếc hộp kim loại mà Thuận tìm được. Nước sôi sùng sục, bốc lên mùi hơi ấm quen thuộc. Anh bảo: "Hôm nay không có cà phê, nhưng ít ra vẫn có nước nóng." Mọi người bật cười.\n\nThuận dựng một bếp nhỏ chắn gió từ đá và đất. Những kinh nghiệm về nhiệt, lực, vật liệu mà anh tích lũy qua nhiều năm bất ngờ trở thành thứ ngôn ngữ thiết thực nhất. Anh không có máy móc; anh có đôi tay, nguyên lý và sự kiên nhẫn.\n\nPhùng dùng các nhánh cây đánh dấu nền đất bằng phẳng. Anh tránh những vùng có dấu hiệu ngập, đặt mái trú theo chiều gió và chọn vị trí có thể quan sát con suối nhưng đủ xa để an toàn khi mưa lớn.\n\nKhi bóng tối kéo xuống, ngọn lửa đầu tiên bừng lên. Họ ngồi thành vòng tròn, im lặng nhìn than đỏ. Đó không phải một thành phố, không phải một ngôi nhà, thậm chí chưa phải một căn lều. Nhưng lần đầu tiên từ lúc tỉnh dậy, bốn người có một nơi để quay về.\n\nChương 3 — Bản đồ bằng trí nhớ\n\nNhật bắt đầu giữ một cuốn nhật ký. Khi điện thoại tắt nguồn, cậu lấy than vẽ lại con suối, các gốc cây lớn và đường mặt trời đi qua bầu trời. Công việc của một editor đã dạy cậu nhìn những chi tiết vụn vặt như các khung hình của một câu chuyện dài hơn.\n\nDanh chia công việc thành các ca ngắn, ghi nhớ những loại hạt, những nguồn nước sạch và thời gian từng loại thức ăn có thể bảo quản. Thuận thử làm dây từ sợi thực vật và gia cố bộ khung trú. Phùng phác thảo một căn nhà nhỏ với mái dốc, nền nâng cao và lối thoát nước quanh chân cột.\n\nMỗi ngày, họ làm thêm một việc tưởng như rất nhỏ. Và rồi, như những trang sách nối nhau, những việc nhỏ ấy bắt đầu tạo thành một cuộc đời mới.\n\nCó lẽ một ngày nào đó họ sẽ hiểu điều gì đã xảy ra. Nhưng vào buổi sáng thứ mười, khi nhìn thấy làn khói mảnh bay thẳng lên trời, Danh chợt nhận ra: nhân loại có thể đã biến mất, song khả năng bắt đầu lại vẫn ở đây, ngay trong bốn con người đang nhóm lửa.`;
+  const SAMPLE_TWO = `Lời mở đầu\n\nCó những ngày thế giới ngoài kia đi quá nhanh, còn trái tim ta lại muốn sống thật chậm. Ta ngồi bên cửa sổ, nghe tiếng mưa len qua hiên nhà và nhận ra rằng mọi câu chuyện đẹp đều cần một khoảng lặng.\n\nMột tách trà bốc khói. Một chiếc ghế cũ. Một trang giấy được lật lên bằng đầu ngón tay. Không có phép màu lớn lao nào xuất hiện, chỉ có cảm giác mọi thứ bỗng trở nên đủ đầy.\n\nBài học thứ nhất — Chậm lại\n\nBạn không cần hiểu hết một cuốn sách trong một đêm. Đôi khi, chỉ một câu văn cũng đủ để đi theo bạn qua nhiều ngày. Hãy cho mình quyền đọc lại, quyền bỏ qua những đoạn chưa hiểu và quyền dừng lại ở một trang mình yêu thích.\n\nĐọc sách không phải cuộc đua về số lượng. Điều đáng quý là những gì ta mang theo khi khép cuốn sách. Một ý tưởng vừa nảy mầm, một ký ức được đánh thức, một câu hỏi tốt hơn những câu trả lời cũ.\n\nBài học thứ hai — Lắng nghe\n\nKhi đọc về cuộc đời của người khác, ta được trao cơ hội nhìn thế giới bằng đôi mắt không phải của mình. Những điều xa lạ trở nên gần gũi. Những nỗi buồn tưởng riêng mình hóa ra cũng từng đi qua trái tim của biết bao người.\n\nMột cuốn sách tốt không nhất thiết khiến ta đồng ý. Đôi khi nó khiến ta ngừng lại để suy nghĩ. Và chính khoảnh khắc ấy, việc đọc đã làm được điều quan trọng nhất.\n\nBài học thứ ba — Mang một câu chuyện về nhà\n\nHãy giữ lại một câu văn khiến bạn mỉm cười. Hãy ghi chú điều làm bạn tò mò. Hãy kể cho ai đó nghe câu chuyện bạn vừa đi qua, bằng giọng nói của chính mình.\n\nMột cuốn sách chỉ thật sự kết thúc khi nó không còn có thể chạm vào cuộc đời ta nữa. Còn nếu ở đâu đó trong bạn vẫn có một ý nghĩ được nó thắp sáng, câu chuyện ấy vẫn đang tiếp diễn.`;
+  const SAMPLE_THREE = `Chương 1 — Những vì sao trên sân thượng\n\nTối hôm ấy, thành phố mất điện. Tất cả những ô cửa sổ sáng rực thường ngày bỗng tắt, khiến bầu trời lộ ra những đốm sao mà lâu nay mọi người đã quên mất.\n\nLinh đặt một chiếc ghế gỗ lên sân thượng. Bên cạnh cô là cuốn sổ chưa viết hết, một cây bút chì ngắn và chiếc đèn pin nhỏ. Cô định ghi lại tên những ngôi sao, rồi cuối cùng chỉ viết một câu: "Mình đã quên mất bầu trời rộng đến thế nào."\n\nTừ tầng dưới vọng lên tiếng ai đó gọi nhau. Một đứa trẻ reo lên khi nhìn thấy vệt sáng lướt ngang trời. Mọi người, lần đầu tiên sau rất nhiều tháng, không cúi nhìn màn hình.\n\nChương 2 — Bức thư chưa gửi\n\nSáng hôm sau, điện trở lại. Những cửa hiệu mở cửa, xe cộ lấp đầy con đường, điện thoại rung không ngừng. Nhưng Linh vẫn giữ cuốn sổ ở trên bàn, nơi ánh sáng buổi sớm chạm vào trang giấy.\n\nCô viết một bức thư cho tương lai. Không phải lời hứa trở thành ai đó phi thường, chỉ là vài điều nhỏ: dành thời gian cho người mình thương, nhìn bầu trời mỗi khi có thể và đừng để một ngày trôi qua mà không thật sự sống trong nó.\n\nCô gấp lá thư lại, đặt vào trang cuối của cuốn sổ. Ngoài cửa sổ, thành phố vẫn vội vàng. Nhưng lần này, cô biết mình có thể chọn nhịp điệu của riêng mình.`;
+  const SEED = [
+    {id:'seed-dawn',title:'Sau Ngày Nhân Loại',author:'Mộc Thư',genre:'Viễn tưởng',description:'Bốn con người thức dậy giữa một thế giới không còn dấu chân văn minh. Và hành trình bắt đầu lại từ những điều nhỏ nhất.',content:SAMPLE_ONE,cover:1},
+    {id:'seed-quiet',title:'Đọc Thật Chậm',author:'Mộc Thư',genre:'Tản văn',description:'Vài trang nhỏ để ngồi lại, hít thở sâu và nhớ rằng đọc sách không phải một cuộc đua.',content:SAMPLE_TWO,cover:0},
+    {id:'seed-stars',title:'Khi Đèn Thành Phố Tắt',author:'Mộc Thư',genre:'Truyện ngắn',description:'Một đêm mất điện, một bầu trời sao và lá thư gửi cho chính mình của ngày mai.',content:SAMPLE_THREE,cover:2},
+  ];
+  function readJSON(key, fallback) { try { const raw=localStorage.getItem(key); return raw===null?fallback:JSON.parse(raw); } catch { return fallback; } }
+  const state = {
+    serverMode:true, books: [], progress: readJSON(KEYS.progress, {}),
+    prefs: {...{theme:'light',font:17,brightness:100},...readJSON(KEYS.prefs,{})},
+    admin:false, currentId:null, pages:[], pageIndex:0, flipping:false, editingId:null,
+  };
+  if (!Array.isArray(state.books)) state.books = structuredClone(SEED);
+  const normalizeVN = value => String(value ?? '').normalize('NFC');
+  const normalizeBook = book => ({...book, title:normalizeVN(book.title), author:normalizeVN(book.author), genre:normalizeVN(book.genre), description:normalizeVN(book.description), content:normalizeVN(book.content)});
+  const escapeHTML = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  async function initializeServerMode() {
+    // Vercel edition: always use the shared database; never silently switch to browser-only data.
+    try {
+      const [sessionResp,booksResp]=await Promise.all([
+        fetch('/api/session',{credentials:'same-origin',cache:'no-store'}),
+        fetch('/api/books',{credentials:'same-origin',cache:'no-store'})
+      ]);
+      if (!sessionResp.ok || !booksResp.ok) {
+        const data=await booksResp.json().catch(()=>({}));
+        throw Error(data.error || 'Không thể kết nối API/database');
+      }
+      const [session,data]=await Promise.all([sessionResp.json(),booksResp.json()]);
+      if (!session.server||!Array.isArray(data.books)) throw Error('Dữ liệu máy chủ không hợp lệ');
+      state.admin=Boolean(session.admin); state.books=data.books.map(normalizeBook);
+      renderLibrary();
+    } catch(e) {
+      state.admin=false; state.books=[];
+      renderLibrary();
+      toast('Lỗi tải thư viện chung: '+e.message);
+      $('#bookCount').textContent='Không kết nối được database';
+    }
+  }
+  async function persistBooks(nextBooks) {
+    if (state.serverMode) {
+      try {
+        const response=await fetch('/api/books',{method:'PUT',credentials:'same-origin',
+          headers:{'Content-Type':'application/json'},body:JSON.stringify({books:nextBooks})});
+        const data=await response.json();
+        if(!response.ok)throw Error(data.error||'Không thể lưu sách');
+        state.books=data.books.map(normalizeBook);return true;
+      } catch(e){toast('Không thể lưu trên máy chủ: '+e.message);return false;}
+    }
+    if(!save(KEYS.books,nextBooks))return false;
+    state.books=nextBooks;return true;
+  }
+  const bookById = id => state.books.find(b=>b.id===id);
+  const isMobile = () => window.matchMedia('(max-width:760px)').matches;
+  const step = () => isMobile()?1:2;
+  function save(key,value) { try { localStorage.setItem(key,JSON.stringify(value)); return true; } catch { toast('Bộ nhớ trình duyệt đã đầy. Hãy xuất bản sao sách ra file JSON.'); return false; } }
+  let toastTimer;
+  function toast(message) { const el=$('#toast'); el.textContent=message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2900); }
+  function coverHTML(book) {
+    const [c1,c2]=COVERS[Number(book.cover)%COVERS.length]||COVERS[0];
+    return `<div class="cover-mock" style="--c1:${c1};--c2:${c2};height:100%"><div class="cover-art"><svg viewBox="0 0 54 54" fill="none" stroke="currentColor"><path d="M27 6v42M6 27h42M12 12l30 30M42 12L12 42" opacity=".38"/><circle cx="27" cy="27" r="14"/><path d="M27 15c-5 6-6 18 0 24 6-6 5-18 0-24Z"/><circle cx="27" cy="27" r="5"/></svg></div><span class="cover-title">${escapeHTML(book.title)}</span><span class="cover-author">${escapeHTML(book.author||'Khuyết danh')}</span></div>`;
+  }
+  function bookTeaserPages(book) { return Math.max(1,Math.ceil((book.content||'').length/800)); }
+  function renderLibrary() {
+    const featured=state.books[0];
+    $('#bookCount').textContent=`${state.books.length} cuốn sách`;
+    $('#newBookTop').hidden=!state.admin;
+    if (featured) {
+      $('#featuredTitle').textContent=featured.title;
+      $('#featuredDesc').textContent=featured.description||'Một câu chuyện đang chờ bạn khám phá từng trang.';
+      $('#featuredRead').hidden=false;
+      $('#featuredCover').innerHTML=coverHTML(featured);
+      $('#featuredCover').style.setProperty('--c1',COVERS[Number(featured.cover)%COVERS.length]?.[0]||COVERS[0][0]);
+    } else {
+      $('#featuredTitle').textContent='Mỗi cuốn sách đều bắt đầu bằng một trang trắng.';
+      $('#featuredDesc').textContent='Đăng nhập tài khoản admin để tạo cuốn sách đầu tiên của bạn.';
+      $('#featuredRead').hidden=true;
+      $('#featuredCover').innerHTML='';
+    }
+    $('#booksGrid').innerHTML=state.books.length ? state.books.map(book=>`
+      <article class="book-item"><div class="cover-slot"><div class="library-cover">${coverHTML(book)}</div></div>
+      <div class="book-meta"><span class="book-genre">${escapeHTML(book.genre||'Sách')}</span><span class="book-pages">~${bookTeaserPages(book)} trang</span></div>
+      <span class="book-title">${escapeHTML(book.title)}</span><span class="book-by">${escapeHTML(book.author||'Khuyết danh')}</span>
+      <button class="read-btn" data-open-id="${escapeHTML(book.id)}">${state.progress[book.id]>0?'Đọc tiếp':'Mở sách'} <span>↗</span></button></article>`).join('')
+      : `<div class="no-books"><h2>Thư viện còn trống</h2><p>Đăng nhập admin và tạo cuốn sách đầu tiên nhé.</p></div>`;
+    $('#adminButtonText').textContent=state.admin?'Quản lý Admin':'Đăng nhập Admin';
+    updateGeminiPanel();
+  }
+
+  // Text-to-Speech miễn phí. Nội dung sách không được ghi thành file audio hoặc gửi tới API của website.
+  // Giọng đọc do trình duyệt / hệ điều hành cung cấp; một số thiết bị cần cài thêm giọng tiếng Việt.
+  const ttsSynth = ('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) ? window.speechSynthesis : null;
+  const ttsSaved = readJSON('mocthu-tts-v1', {});
+  const tts = {
+    active:false, paused:false, checking:false, token:0, page:0, pieces:[], piece:0, utterance:null, turning:false,
+    rate:[.75,.9,1,1.15,1.25,1.5,2].includes(Number(ttsSaved.rate))?Number(ttsSaved.rate):1,
+    voiceURI:typeof ttsSaved.voiceURI==='string'?ttsSaved.voiceURI:''
+  };
+  // Chỉ chấp nhận giọng tiếng Việt thật sự. lang='vi-VN' KHÔNG tạo ra giọng tiếng Việt
+  // nếu trình duyệt không cung cấp voice phù hợp; thiếu voice phải dừng thay vì đọc giọng Anh.
+  const vietnameseVoice = voice => /^vi(?:-|_|$)/i.test(voice.lang||'') ||
+    (!voice.lang && /vietnamese|tiếng việt/i.test(voice.name||''));
+  function ttsVoices() {
+    return ttsSynth ? ttsSynth.getVoices().filter(vietnameseVoice) : [];
+  }
+  function refreshTtsVoices() {
+    if(!ttsSynth) return;
+    const select=$('#ttsVoice');
+    const previous=tts.voiceURI;
+    const voices=ttsVoices();
+    select.replaceChildren(new Option(voices.length ? 'Tự động (tiếng Việt)' : 'Chưa có giọng tiếng Việt', ''));
+    for(const voice of voices) select.add(new Option(voice.name+' ('+voice.lang+')',voice.voiceURI));
+    if(previous && voices.some(v=>v.voiceURI===previous)) select.value=previous;
+    else { tts.voiceURI='';select.value=''; }
+    select.disabled=!voices.length;
+    $('#ttsHelp').hidden=!!voices.length;
+    if (!tts.active && !tts.checking)
+      $('#ttsStatus').textContent=voices.length
+        ? 'Đã nhận '+voices.length+' giọng tiếng Việt. Nhấn Nghe để bắt đầu.'
+        : 'Không tìm thấy giọng đọc tiếng Việt. Website sẽ không dùng giọng tiếng Anh thay thế.';
+  }
+  async function requireVietnameseVoice() {
+    if(!ttsSynth) return null;
+    refreshTtsVoices();
+    let voices=ttsVoices();
+    if(!voices.length) {
+      tts.checking=true;
+      $('#ttsStatus').textContent='Đang đợi trình duyệt tải danh sách giọng tiếng Việt…';
+      // Danh sách voice thường tải sau khi trang mở; đợi voiceschanged trong thời gian ngắn.
+      await new Promise(resolve=> {
+        let finished=false;
+        const done=()=> {
+          if(finished) return;
+          finished=true;
+          clearTimeout(timer);
+          ttsSynth.removeEventListener?.('voiceschanged', onChanged);
+          resolve();
+        };
+        const onChanged=()=>{if(ttsVoices().length) done();};
+        ttsSynth.addEventListener?.('voiceschanged', onChanged);
+        const timer=setTimeout(done,1600);
+      });
+      tts.checking=false;
+      refreshTtsVoices();
+      voices=ttsVoices();
+    }
+    if(!voices.length) {
+      $('#ttsHelp').hidden=false;
+      $('#ttsStatus').textContent='Chưa có giọng tiếng Việt trên trình duyệt. Hãy xem cách cài bên dưới, sau đó bấm Kiểm tra giọng.';
+      toast('Chưa có giọng tiếng Việt. Đã chặn phát bằng giọng tiếng Anh.');
+      return null;
+    }
+    // Nếu voice trước đây đã bị gỡ, chọn voice tiếng Việt đầu tiên thay vì voice mặc định.
+    return voices.find(v=>v.voiceURI===tts.voiceURI) || voices.find(v=>/^vi[-_]VN$/i.test(v.lang||'')) || voices[0];
+  }
+  function ttsSaveOptions() { save('mocthu-tts-v1',{rate:tts.rate,voiceURI:tts.voiceURI}); }
+  function updateTtsControls() {
+    $('#ttsPlay').disabled=!ttsSynth;
+    $('#ttsPlay').textContent=tts.paused?'▶ Tiếp tục':tts.active?'↻ Đọc lại trang này':'▶ Nghe từ trang này';
+    $('#ttsPause').hidden=!tts.active||tts.paused;
+    $('#ttsStop').disabled=!tts.active;
+    $('#ttsRate').value=String(tts.rate);
+    if(!ttsSynth) $('#ttsStatus').textContent='Trình duyệt hiện tại không hỗ trợ đọc văn bản. Hãy thử Chrome hoặc Edge.';
+  }
+  function ttsStop(message='Đã dừng đọc sách.') {
+    tts.token++; tts.active=false; tts.paused=false; tts.utterance=null; tts.turning=false;
+    if(ttsSynth) ttsSynth.cancel();
+    $('#ttsStatus').textContent=message; updateTtsControls();
+  }
+  function ttsPieces(paragraphs) {
+    // Đọc theo đoạn ngắn để Chrome/Edge không bị kẹt ở một câu quá dài.
+    const pieces=[];
+    for(const paragraph of paragraphs||[]) {
+      let chunk='';
+      for (const word of paragraph.trim().split(/\s+/).filter(Boolean)) {
+        if (chunk && chunk.length+word.length+1>170) { pieces.push(chunk);chunk=''; }
+        chunk += (chunk?' ':'') + word;
+      }
+      if(chunk) pieces.push(chunk);
+    }
+    return pieces;
+  }
+  function ttsFinish() { ttsStop('Đã nghe hết cuốn sách. ✨'); }
+  function ttsNext(token) {
+    if (token!==tts.token || !tts.active || tts.paused || tts.utterance || tts.turning || $('#readerView').hidden) return;
+    if (tts.piece>=tts.pieces.length) {
+      tts.page++;
+      if (tts.page>=state.pages.length) return ttsFinish();
+      tts.pieces=ttsPieces(state.pages[tts.page]); tts.piece=0;
+      if (tts.page>=state.pageIndex+step()) {
+        tts.turning=true;
+        const moved=turn(1,{auto:true,onComplete:()=>{
+          if(token!==tts.token)return;
+          tts.turning=false;
+          ttsNext(token);
+        }});
+        if (!moved) ttsStop('Đã dừng đọc khi không thể lật trang.');
+        return;
+      }
+    }
+    if (!tts.pieces.length) { tts.pieces=['Trang trống.']; tts.piece=0; }
+    const utterance=new SpeechSynthesisUtterance(tts.pieces[tts.piece]);
+    utterance.lang='vi-VN'; utterance.rate=tts.rate; utterance.pitch=1; utterance.volume=1;
+    const voices=ttsVoices();
+    const voice=voices.find(v=>v.voiceURI===tts.voiceURI) || voices.find(v=>/^vi[-_]VN$/i.test(v.lang||'')) || voices[0];
+    if(!voice) {ttsStop('Giọng tiếng Việt đã biến mất khỏi trình duyệt. Bấm Kiểm tra giọng.');$('#ttsHelp').hidden=false;return;}
+    utterance.voice=voice;
+    utterance.lang=voice.lang || 'vi-VN';
+    tts.utterance=utterance;
+    $('#ttsStatus').textContent=`Đang đọc trang ${tts.page+1}/${state.pages.length} · Tốc độ ${tts.rate}×`;
+    utterance.onend=()=>{
+      if(token!==tts.token || tts.utterance!==utterance) return;
+      tts.utterance=null; tts.piece++;
+      setTimeout(()=>ttsNext(token),35);
+    };
+    utterance.onerror=e=>{
+      if(token!==tts.token || tts.utterance!==utterance) return;
+      if(e.error==='canceled'||e.error==='interrupted')return;
+      ttsStop('Không thể phát giọng đọc trên thiết bị này. Hãy thử một giọng khác hoặc Chrome/Edge.');
+    };
+    try {ttsSynth.speak(utterance);} catch {ttsStop('Không thể khởi động giọng đọc. Hãy kiểm tra cài đặt âm thanh của trình duyệt.');}
+  }
+  async function startTts() {
+    if(!ttsSynth) {toast('Trình duyệt không hỗ trợ đọc sách bằng giọng nói.');return;}
+    if(!state.currentId || !state.pages.length || tts.checking) return;
+    const bookId=state.currentId;
+    tts.checking=true;
+    const voice=await requireVietnameseVoice();
+    tts.checking=false;
+    if(!voice || state.currentId!==bookId || $('#readerView').hidden) return;
+    ttsStop('');
+    tts.active=true; tts.page=state.pageIndex; tts.pieces=ttsPieces(state.pages[tts.page]); tts.piece=0;
+    updateTtsControls();
+    ttsNext(tts.token);
+  }
+  function pauseTts() {
+    if(!ttsSynth || !tts.active || tts.paused) return;
+    tts.paused=true;ttsSynth.pause();
+    $('#ttsStatus').textContent=`Đã tạm dừng tại trang ${tts.page+1}.`;
+    updateTtsControls();
+  }
+  function resumeTts() {
+    if(!ttsSynth || !tts.active || !tts.paused) return;
+    tts.paused=false; ttsSynth.resume(); updateTtsControls();
+    $('#ttsStatus').textContent=`Tiếp tục đọc trang ${tts.page+1}/${state.pages.length}.`;
+    ttsNext(tts.token);
+  }
+
+  // Thử nghiệm Gemini: admin tự gửi một đoạn ngắn, không dùng Web Speech API.
+  let geminiAudioUrl = null;
+  function clearGeminiAudio() {
+    const a=$('#geminiAudio');
+    a.pause(); a.removeAttribute('src'); a.load(); a.hidden=true;
+    $('#geminiDownload').hidden=true;
+    if(geminiAudioUrl) URL.revokeObjectURL(geminiAudioUrl);
+    geminiAudioUrl=null;
+  }
+  function updateGeminiPanel() { $('#geminiPreview').hidden = true; if(typeof refreshAudiobookAdmin==='function')refreshAudiobookAdmin(); }
+  function pageTextForGemini() {
+    const paragraphText=(state.pages[state.pageIndex] || []).join(' ').replace(/\s+/g,' ').trim();
+    const chars=Array.from(paragraphText);
+    if(chars.length <= 240) return paragraphText;
+    const excerpt=chars.slice(0,240).join('');
+    const split=excerpt.lastIndexOf(' ');
+    return split>150 ? excerpt.slice(0,split) : excerpt;
+  }
+  function takeGeminiTextFromPage() {
+    $('#geminiText').value=pageTextForGemini();
+    $('#geminiStatus').textContent='Đã lấy đoạn đầu của trang '+(state.pageIndex+1)+' (có thể chỉnh sửa trước khi tạo giọng).';
+  }
+  async function generateGeminiDemo() {
+    if(!state.admin) return toast('Cần đăng nhập Admin để thử giọng AI.');
+    const text=$('#geminiText').value.normalize('NFC').trim();
+    if(!text || [...text].length>240){$('#geminiStatus').textContent='Nhập tối đa 240 ký tự tiếng Việt.';return;}
+    ttsStop('Đã tạm dừng giọng thiết bị để nghe Gemini.');
+    clearGeminiAudio();
+    const btn=$('#geminiGenerate');btn.disabled=true;
+    $('#geminiStatus').textContent='Đang tạo file WAV bằng Gemini. Không cần cài giọng nói trên máy...';
+    try {
+      const response=await fetch('/api/tts-demo',{
+        method:'POST',credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({text,voice:'Kore'})
+      });
+      if(!response.ok){
+        const data=await response.json().catch(()=>({}));
+        throw new Error(data.error||('HTTP '+response.status));
+      }
+      const blob=await response.blob();
+      if(blob.size<44)throw new Error('File audio bị trống.');
+      geminiAudioUrl=URL.createObjectURL(blob);
+      const audio=$('#geminiAudio');audio.src=geminiAudioUrl;audio.hidden=false;
+      const link=$('#geminiDownload');link.href=geminiAudioUrl;link.hidden=false;
+      $('#geminiStatus').textContent='Đã tạo xong! Nhấn ▶ trên trình phát để nghe. Có thể thử khóa màn hình iPhone trong lúc audio đang phát.';
+      // Safari may block autoplay after a slow fetch. Let the user tap Play on audio controls.
+    } catch(e) { $('#geminiStatus').textContent='Lỗi: '+e.message; }
+    finally { btn.disabled=false; }
+  }
+  $('#geminiFromPage').addEventListener('click', takeGeminiTextFromPage);
+  $('#geminiGenerate').addEventListener('click', generateGeminiDemo);
+
+  function showLibrary() {
+    stopAudiobookForNavigation();
+    clearGeminiAudio();
+    ttsStop('Nhấn Nghe để đọc từ trang hiện tại.');
+    state.flipping=false; $('#readerView').hidden=true; updateGeminiPanel(); $('#libraryView').hidden=false; $('#siteFooter').hidden=false;
+    $('#editCurrent').hidden=true; document.body.classList.remove('reader-open');
+    $('#siteHeader').classList.remove('header-hidden');
+    $('#libraryNav').classList.add('active'); $('#continueNav').classList.remove('active');
+    renderLibrary(); window.scrollTo({top:0,behavior:'instant'});
+  }
+  function applyPrefs() {
+    if (!THEMES[state.prefs.theme]) state.prefs.theme='light';
+    state.prefs.font=Math.min(23,Math.max(14,Number(state.prefs.font)||17));
+    state.prefs.brightness=Math.min(100,Math.max(45,Number(state.prefs.brightness)||100));
+    $('#readerView').dataset.theme=state.prefs.theme;
+    $('#bookScene').style.setProperty('--reader-brightness',state.prefs.brightness/100);
+    $('#readerView').style.setProperty('--reading-size',state.prefs.font+'px');
+    $('#brightnessRange').value=state.prefs.brightness;
+    $$('[data-theme-choice]').forEach(el=>el.classList.toggle('is-active',el.dataset.themeChoice===state.prefs.theme));
+    save(KEYS.prefs,state.prefs);
+  }
+  function openBook(id) {
+    stopAudiobookForNavigation();
+    clearGeminiAudio();
+    ttsStop('Nhấn Nghe để đọc từ trang hiện tại.');
+    const book=bookById(id); if (!book) return;
+    state.currentId=id; state.flipping=false;
+    $('#libraryView').hidden=true; $('#readerView').hidden=false; $('#siteFooter').hidden=true; document.body.classList.add('reader-open');
+    $('#libraryNav').classList.remove('active'); $('#continueNav').classList.add('active');
+    $('#readerBookTitle').textContent=book.title; $('#readerBookAuthor').textContent=book.author||'Khuyết danh';
+    $('#editCurrent').hidden=!state.admin; updateGeminiPanel(); applyPrefs();
+    requestAnimationFrame(()=>{ repaginate(true); window.scrollTo({top:0,behavior:'instant'}); });
+    loadAudiobook(id);
+    // Recalculate pages after Literata has loaded, preventing clipped text.
+    if (document.fonts?.load) {
+      document.fonts.load('400 17px Literata').then(()=>{
+        if (state.currentId===id && !$('#readerView').hidden && !state.flipping) repaginate(false);
+      }).catch(()=>{});
+    }
+  }
+  function normalizeParagraphs(content) {
+    const raw=normalizeVN(content).replace(/\r\n?/g,'\n').trim();
+    if (!raw) return ['Cuốn sách này chưa có nội dung.'];
+    return raw.split(/\n\s*\n/).map(v=>v.replace(/\n/g,' ').replace(/\s+/g,' ').trim()).filter(Boolean);
+  }
+  function fits(paras, width, maxHeight, fontSize) {
+    const el=$('#measureText'); el.style.width=width+'px'; el.style.fontSize=fontSize+'px';
+    el.replaceChildren(...paras.map(t=>{const p=document.createElement('p');p.textContent=t;return p;}));
+    return el.scrollHeight<=maxHeight+1;
+  }
+  function paginate(content) {
+    const target=$('#leftPaper .paper-text'); const rect=target.getBoundingClientRect();
+    const width=Math.max(175,rect.width), maxHeight=Math.max(180,rect.height-20), fontSize=state.prefs.font;
+    let pages=[], current=[];
+    const emit=()=>{ if(current.length){pages.push(current);current=[];} };
+    const paras=normalizeParagraphs(content);
+    for (const para of paras) {
+      if (fits([...current,para],width,maxHeight,fontSize)) { current.push(para); continue; }
+      emit();
+      if (fits([para],width,maxHeight,fontSize)) { current.push(para); continue; }
+      let words=para.split(/\s+/);
+      while (words.length) {
+        let lo=1,hi=words.length,best=1;
+        while(lo<=hi) { const mid=Math.floor((lo+hi)/2); const text=words.slice(0,mid).join(' ');
+          if(fits([text],width,maxHeight,fontSize)) {best=mid;lo=mid+1;} else hi=mid-1;
+        }
+        current.push(words.slice(0,best).join(' ')); words=words.slice(best); emit();
+      }
+    }
+    emit();
+    return pages.length?pages:[['Cuốn sách này chưa có nội dung.']];
+  }
+  function paperHTML(paragraphs,number,side) {
+    const b=bookById(state.currentId);
+    const content=(paragraphs||[]).map(p=>`<p>${escapeHTML(p)}</p>`).join('')||'<p class="empty-page">Hết.</p>';
+    return `<div class="paper paper-${side}"><div class="paper-running"><span>${escapeHTML(b?.title||'')}</span><span>✧</span></div><div class="paper-text">${content}</div><div class="paper-number">${number<state.pages.length?number+1:''}</div></div>`;
+  }
+  function fillPaper(root, idx, side) {
+    const p=state.pages[idx]||[]; root.className='paper paper-'+side;
+    root.innerHTML=`<div class="paper-running"><span>${escapeHTML(bookById(state.currentId)?.title||'')}</span><span>✧</span></div><div class="paper-text">${p.length?p.map(x=>`<p>${escapeHTML(x)}</p>`).join(''):'<p class="empty-page">Hết.</p>'}</div><div class="paper-number">${idx<state.pages.length?idx+1:''}</div>`;
+  }
+  function normalizeIndex(index) { const max=Math.max(0,state.pages.length-1); return Math.floor(Math.max(0,Math.min(max,index))/step())*step(); }
+  function renderSpread() {
+    fillPaper($('#leftPaper'),state.pageIndex,'left'); fillPaper($('#rightPaper'),state.pageIndex+1,'right');
+    const end=Math.min(state.pageIndex+step(),state.pages.length);
+    $('#pageStatus').textContent=`${state.pageIndex+1}${end>state.pageIndex+1?'–'+end:''} / ${state.pages.length}`;
+    // Dropdown chọn trang: một mục cho mỗi trang trên điện thoại,
+    // hoặc mỗi cặp trang trên màn hình rộng.
+    const select=$('#pageSelect');
+    const perSpread=step();
+    const spreadCount=Math.max(1,Math.ceil(state.pages.length/perSpread));
+    const pageSignature=`${state.pages.length}:${perSpread}`;
+    if(select.dataset.pages!==pageSignature) {
+      const options=document.createDocumentFragment();
+      for(let i=0;i<spreadCount;i++) {
+        const start=i*perSpread+1;
+        const end=Math.min(start+perSpread-1,state.pages.length);
+        const option=document.createElement('option');
+        option.value=String(i);
+        option.textContent=`Trang ${start}${end>start?'–'+end:''}`;
+        options.appendChild(option);
+      }
+      select.replaceChildren(options);
+      select.dataset.pages=pageSignature;
+    }
+    select.value=String(Math.floor(state.pageIndex/perSpread));
+    const disabledPrev=state.pageIndex<=0, disabledNext=state.pageIndex+step()>=state.pages.length;
+    ['#prevSide','#prevPage'].forEach(x=>$(x).disabled=disabledPrev);
+    ['#nextSide','#nextPage'].forEach(x=>$(x).disabled=disabledNext);
+  }
+  function repaginate(restore) {
+    if(tts.active) ttsStop('Bố cục trang thay đổi. Bấm Nghe để đọc lại từ trang đang mở.');
+    const b=bookById(state.currentId); if(!b||$('#readerView').hidden) return;
+    const oldPage=restore?(state.progress[state.currentId]||0):state.pageIndex;
+    state.pages=paginate(b.content); state.pageIndex=normalizeIndex(oldPage); renderSpread();
+  }
+  function rememberProgress() { if (!state.currentId) return; state.progress[state.currentId]=state.pageIndex; save(KEYS.progress,state.progress); }
+  function turn(direction,{auto=false,onComplete=null}={}) {
+    if (state.flipping || $('#readerView').hidden) return false;
+    const old=state.pageIndex, next=old+direction*step();
+    if (next<0||next>=state.pages.length) return false;
+    if(!auto && tts.active) ttsStop('Đã dừng đọc vì bro lật trang thủ công.');
+    clearGeminiAudio();
+    state.flipping=true;
+    const mobile=isMobile(); const scene=$('#bookShell');
+    let front,back,frontSide,backSide;
+    if (direction>0) {
+      front=mobile?old:old+1;back=next;frontSide=mobile?'left':'right';backSide='left';
+      if(mobile) fillPaper($('#leftPaper'),next,'left');
+      else fillPaper($('#rightPaper'),next+1,'right');
+    } else {
+      front=old;back=mobile?next:next+1;frontSide='left';backSide=mobile?'left':'right';
+      if(mobile) fillPaper($('#leftPaper'),next,'left');
+      else fillPaper($('#leftPaper'),next,'left');
+    }
+    const flip=document.createElement('div'); flip.className='page-flip '+(direction>0?'forward':'backward');
+    flip.innerHTML=`<div class="flip-face front">${paperHTML(state.pages[front],front,frontSide)}</div><div class="flip-face back">${paperHTML(state.pages[back],back,backSide)}</div>`;
+    scene.appendChild(flip);
+    let completed=false; const flipBookId=state.currentId;
+    const complete=()=>{ if(completed)return; completed=true; flip.remove();if(!state.flipping||state.currentId!==flipBookId)return;state.pageIndex=next;state.flipping=false;renderSpread();rememberProgress();if(typeof onComplete==='function')onComplete(); };
+    flip.addEventListener('animationend',complete,{once:true});
+    // Safari/reduced-motion fallback if animationend is skipped.
+    setTimeout(complete,1000);
+    return true;
+  }
+  function jumpSpread(n) { if(state.flipping)return; clearGeminiAudio(); if(tts.active)ttsStop('Đã dừng đọc vì bro chuyển trang.'); state.pageIndex=normalizeIndex(Number(n)*step());renderSpread();rememberProgress(); }
+  function openModal(html,wide=false) { $('#modalContainer').classList.toggle('wide',wide);$('#modalContainer').innerHTML=html;$('#modalBackdrop').hidden=false;setTimeout(()=>$('#modalContainer input:not([type=file]),#modalContainer textarea,#modalContainer button').focus(),20); }
+  function closeModal() {$('#modalBackdrop').hidden=true;$('#modalContainer').innerHTML='';}
+  function modalHeader(title,subtitle) {return `<div class="modal-top"><div><h2 id="modalHeading">${title}</h2><p class="modal-subtitle">${subtitle}</p></div><button class="close-btn" data-close aria-label="Đóng">×</button></div>`;}
+  function loginModal() {
+    openModal(modalHeader('Xin chào, Admin.','Đăng nhập để thêm sách, sửa nội dung và quản lý thư viện.')+
+      `<form id="loginForm"><div class="field"><label for="adminUser">Tài khoản</label><input id="adminUser" autocomplete="username" required placeholder="Tên đăng nhập" /></div><div class="field"><label for="adminPass">Mật khẩu</label><input id="adminPass" type="password" autocomplete="current-password" required placeholder="Mật khẩu" /></div><div class="error" id="loginError" hidden>Tài khoản hoặc mật khẩu không đúng.</div><button class="solid-btn" type="submit">Đăng nhập →</button></form>`);
+  }
+  function adminModal() {
+    openModal(modalHeader('Quản trị thư viện','Tạo, chỉnh sửa và sao lưu nội dung trong thư viện của bạn.')+
+      `<button class="admin-menu-btn" id="adminCreate">＋ Tạo cuốn sách mới <span>↗</span></button>
+       <button class="admin-menu-btn" id="adminEdit">✎ Chỉnh sửa sách đang đọc <span>↗</span></button>
+       <button class="admin-menu-btn" id="adminExport">⇩ Xuất toàn bộ sách (JSON) <span>↗</span></button>
+       <button class="admin-menu-btn" id="adminImport">⇧ Nhập sách từ file JSON <span>↗</span></button>
+       <button class="admin-menu-btn" id="adminLogout">↪ Đăng xuất <span>↗</span></button>
+       <input id="importFile" type="file" accept="application/json,.json" hidden />
+       <p class="admin-note" style="margin-top:22px">${state.serverMode?'Sách được lưu trên máy chủ và đồng bộ cho người đọc. Vị trí đọc và giao diện vẫn lưu trong trình duyệt.':'Dữ liệu sách được lưu vào Neon Postgres trên máy chủ.'}</p>`);
+    $('#adminEdit').disabled=!state.currentId || $('#readerView').hidden;
+    $('#adminEdit').style.opacity=$('#adminEdit').disabled?.35:1;
+  }
+  function editorModal(id=null) {
+    if(!state.admin) return loginModal();
+    state.editingId=id; const b=id?bookById(id):null;
+    const palette=COVERS.map((c,i)=>`<button type="button" class="palette-option ${Number(b?.cover||0)===i?'selected':''}" data-cover="${i}" style="background:linear-gradient(135deg,${c[0]},${c[1]})" title="Màu bìa ${i+1}" aria-label="Màu bìa ${i+1}"></button>`).join('');
+    openModal(modalHeader(b?'Chỉnh sửa cuốn sách':'Tạo một cuốn sách','Dán nội dung dài vào ô văn bản; trang sách sẽ tự chia theo kích thước màn hình.')+
+      `<form id="editorForm"><div class="field-row"><div class="field"><label for="bookTitle">Tên sách *</label><input id="bookTitle" maxlength="120" required value="${escapeHTML(b?.title||'')}" placeholder="Tên câu chuyện" /></div><div class="field"><label for="bookAuthor">Tác giả</label><input id="bookAuthor" maxlength="100" value="${escapeHTML(b?.author||'')}" placeholder="Tên tác giả" /></div></div>
+      <div class="field-row"><div class="field"><label for="bookGenre">Thể loại</label><input id="bookGenre" maxlength="50" value="${escapeHTML(b?.genre||'')}" placeholder="Viễn tưởng, tản văn..." /></div><div class="field"><label for="bookDescription">Giới thiệu ngắn</label><input id="bookDescription" maxlength="220" value="${escapeHTML(b?.description||'')}" placeholder="Một dòng giới thiệu..." /></div></div>
+      <div class="field"><label>Màu bìa</label><div class="palette" id="coverPalette" data-selected="${Number(b?.cover)||0}">${palette}</div></div>
+      <div class="field"><label for="bookContent">Nội dung sách *</label><textarea id="bookContent" required placeholder="Dán toàn bộ văn bản tại đây...">${escapeHTML(b?.content||'')}</textarea><small>Ngắt đoạn bằng một dòng trống. Hỗ trợ Unicode và tiếng Việt.</small></div>
+      <div class="modal-actions">${b?'<button class="danger-btn" id="deleteBook" type="button">Xóa sách</button>':''}<button class="solid-btn" type="submit">${b?'Lưu thay đổi':'Tạo cuốn sách'} →</button></div></form>`,true);
+  }
+  async function saveBookFromEditor() {
+    if(!state.admin)return;
+    const title=normalizeVN($('#bookTitle').value).trim(), content=normalizeVN($('#bookContent').value).trim();
+    if(!title||!content){toast('Cần nhập tên sách và nội dung.');return;}
+    const existing=state.editingId?bookById(state.editingId):null;
+    const book={id:existing?.id||('b'+Date.now()+'-'+Math.random().toString(36).slice(2,6)),title,content,
+      author:normalizeVN($('#bookAuthor').value).trim()||'Khuyết danh',genre:normalizeVN($('#bookGenre').value).trim()||'Sách',
+      description:normalizeVN($('#bookDescription').value).trim(),cover:Number($('#coverPalette').dataset.selected)||0};
+    let newBooks=state.books.slice();
+    if(existing) newBooks=newBooks.map(b=>b.id===existing.id?book:b);
+    else newBooks.unshift(book);
+    if(!await persistBooks(newBooks))return;
+    closeModal();renderLibrary();toast(existing?'Đã lưu thay đổi!':'Đã tạo cuốn sách mới!');openBook(book.id);
+    // When a book is edited, begin again at the first page to avoid stale positioning.
+    if(existing){state.progress[book.id]=0;save(KEYS.progress,state.progress);state.pageIndex=0;requestAnimationFrame(()=>repaginate(false));}
+  }
+  async function deleteBook(id) {
+    if(!state.admin)return;
+    if(!confirm('Xóa cuốn sách này khỏi thư viện trên trình duyệt?'))return;
+    const next=state.books.filter(b=>b.id!==id); if(!await persistBooks(next))return;
+    delete state.progress[id];save(KEYS.progress,state.progress);
+    if(state.currentId===id){state.currentId=null;showLibrary();}
+    closeModal();renderLibrary();toast('Đã xóa cuốn sách.');
+  }
+  function exportBooks() {
+    const blob=new Blob([JSON.stringify({format:'mocthu-v1',books:state.books,progress:state.progress},null,2)],{type:'application/json;charset=utf-8'});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='moc-thu-sao-luu.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Đã xuất bản sao thư viện.');
+  }
+  async function importBooks(file) {
+    if(!state.admin||!file)return;
+    try {
+      const data=JSON.parse(await file.text());const raw=Array.isArray(data)?data:data.books;
+      if(!Array.isArray(raw)||!raw.every(x=>x&&typeof x.title==='string'&&typeof x.content==='string'))throw Error('bad');
+      const books=raw.slice(0,500).map((b,i)=>({id:String(b.id||('import-'+Date.now()+'-'+i)),title:b.title.slice(0,120),author:String(b.author||'Khuyết danh').slice(0,100),genre:String(b.genre||'Sách').slice(0,50),description:String(b.description||'').slice(0,220),cover:Math.min(5,Math.max(0,Number(b.cover)||0)),content:b.content})).map(normalizeBook);
+      if(!confirm(`Nhập ${books.length} cuốn sách và thay thế thư viện hiện tại? Hãy xuất bản sao trước nếu cần.`))return;
+      if(!await persistBooks(books))return;
+      state.progress={};save(KEYS.progress,{});state.currentId=null;closeModal();showLibrary();toast(`Đã nhập ${books.length} cuốn sách.`);
+    } catch {toast('Không đọc được file JSON của thư viện.');}
+  }
+  // navigation & delegations
+  $('#homeBrand').addEventListener('click',showLibrary);$('#libraryNav').addEventListener('click',showLibrary);$('#backToShelf').addEventListener('click',showLibrary);
+  $('#featuredRead').addEventListener('click',()=>state.books[0]&&openBook(state.books[0].id));
+  $('#continueNav').addEventListener('click',()=>{const id=state.currentId&&bookById(state.currentId)?state.currentId:state.books.find(b=>state.progress[b.id]>0)?.id||state.books[0]?.id; if(id)openBook(id);else toast('Thư viện chưa có sách.');});
+  $('#booksGrid').addEventListener('click',e=>{const id=e.target.closest('[data-open-id]')?.dataset.openId;if(id)openBook(id);});
+  $('#adminButton').addEventListener('click',()=>state.admin?adminModal():loginModal());
+  $('#newBookTop').addEventListener('click',()=>editorModal());$('#editCurrent').addEventListener('click',()=>editorModal(state.currentId));
+  ['#prevSide','#prevPage'].forEach(s=>$(s).addEventListener('click',()=>turn(-1)));
+  ['#nextSide','#nextPage'].forEach(s=>$(s).addEventListener('click',()=>turn(1)));
+  $('#pageSelect').addEventListener('change',e=>jumpSpread(e.target.value));
+  $('#ttsPlay').addEventListener('click',()=>tts.paused?resumeTts():startTts());
+  $('#ttsPause').addEventListener('click',pauseTts);
+  $('#ttsStop').addEventListener('click',()=>ttsStop());
+  $('#ttsCheckVoice').addEventListener('click',async()=> {
+    if(!ttsSynth) return;
+    if(tts.checking) return;
+    tts.checking=true;
+    const voice=await requireVietnameseVoice();
+    tts.checking=false;
+    if(voice && !tts.active) $('#ttsStatus').textContent='Đã tìm thấy giọng tiếng Việt: '+voice.name+'. Nhấn Nghe để bắt đầu.';
+  });
+  $('#ttsRate').addEventListener('change',e=>{tts.rate=Number(e.target.value)||1;ttsSaveOptions();if(tts.active)$('#ttsStatus').textContent=`Đã chọn ${tts.rate}×. Tốc độ mới áp dụng ở đoạn tiếp theo.`;});
+  $('#ttsVoice').addEventListener('change',e=>{tts.voiceURI=e.target.value;ttsSaveOptions();if(tts.active)ttsStop('Đã đổi giọng đọc. Nhấn Nghe để bắt đầu từ trang hiện tại.');});
+  if(ttsSynth) {
+    if(typeof ttsSynth.addEventListener==='function') ttsSynth.addEventListener('voiceschanged',refreshTtsVoices);
+    else ttsSynth.onvoiceschanged=refreshTtsVoices;
+    refreshTtsVoices();
+  }
+  updateTtsControls();
+  $$('[data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>{state.prefs.theme=btn.dataset.themeChoice;applyPrefs();}));
+  $('#brightnessRange').addEventListener('input',e=>{state.prefs.brightness=+e.target.value;applyPrefs();});
+  $('#smallerFont').addEventListener('click',()=>{state.prefs.font=Math.max(14,state.prefs.font-1);applyPrefs();repaginate(false);rememberProgress();});
+  $('#biggerFont').addEventListener('click',()=>{state.prefs.font=Math.min(23,state.prefs.font+1);applyPrefs();repaginate(false);rememberProgress();});
+  $('#modalBackdrop').addEventListener('click',e=>{if(e.target.id==='modalBackdrop'||e.target.closest('[data-close]'))closeModal();});
+  $('#modalBackdrop').addEventListener('submit',async e=>{
+    if(e.target.id==='loginForm') {
+      e.preventDefault();let valid=false;
+      const username=$('#adminUser').value,password=$('#adminPass').value;
+      if(state.serverMode) {
+        try {
+          const response=await fetch('/api/login',{method:'POST',credentials:'same-origin',
+            headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+          valid=response.ok;
+        } catch {toast('Không thể kết nối máy chủ.');return;}
+      } else valid=false;
+      if(valid){state.admin=true;closeModal();renderLibrary();updateGeminiPanel();$('#editCurrent').hidden=!state.currentId||$('#readerView').hidden;toast('Đã đăng nhập tài khoản admin.');}
+      else $('#loginError').hidden=false;
+    }
+    if(e.target.id==='editorForm'){e.preventDefault();await saveBookFromEditor();}
+  });
+  $('#modalBackdrop').addEventListener('click',async e=>{
+    const target=e.target.closest('button');if(!target)return;
+    if(target.matches('[data-cover]')) {$('#coverPalette').dataset.selected=target.dataset.cover;$$('.palette-option').forEach(x=>x.classList.toggle('selected',x===target));}
+    if(target.id==='adminCreate')editorModal();
+    if(target.id==='adminEdit'&&state.currentId)editorModal(state.currentId);
+    if(target.id==='adminExport')exportBooks();
+    if(target.id==='adminImport')$('#importFile')?.click();
+    if(target.id==='adminLogout') {
+      if(state.serverMode) {
+        try { const r=await fetch('/api/logout',{method:'POST',credentials:'same-origin'});if(!r.ok)throw Error(); }
+        catch {toast('Không thể đăng xuất trên máy chủ.');return;}
+      }
+      state.admin=false;closeModal();clearGeminiAudio();updateGeminiPanel();renderLibrary();$('#editCurrent').hidden=true;toast('Đã đăng xuất.');
+    }
+    if(target.id==='deleteBook'&&state.editingId)deleteBook(state.editingId);
+  });
+  $('#modalBackdrop').addEventListener('change',e=>{if(e.target.id==='importFile')importBooks(e.target.files?.[0]);});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&!$('#modalBackdrop').hidden){closeModal();return;}
+    if(!$('#modalBackdrop').hidden||$('#readerView').hidden||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;
+    if(e.key==='ArrowRight'){e.preventDefault();turn(1);}if(e.key==='ArrowLeft'){e.preventDefault();turn(-1);}
+  });
+  // iPhone Safari thường phát resize khi thanh địa chỉ / thanh công cụ tự ẩn.
+  // Khi đó độ rộng không đổi, và tuyệt đối KHÔNG chia lại trang sách.
+  // Chỉ paginate lại khi độ rộng/breakpoint đổi (ví dụ xoay ngang điện thoại),
+  // hoặc thay đổi kích thước cửa sổ trên desktop.
+  let resizeTimer;
+  let lastMobile = isMobile();
+  let lastLayoutWidth = document.documentElement.clientWidth;
+  let lastDesktopHeight = window.innerHeight;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const mobile = isMobile();
+      const width = document.documentElement.clientWidth;
+      const widthChanged = Math.abs(width - lastLayoutWidth) >= 2;
+      const breakpointChanged = mobile !== lastMobile;
+      const desktopHeightChanged = !mobile && Math.abs(window.innerHeight - lastDesktopHeight) >= 2;
+      lastMobile = mobile;
+      lastLayoutWidth = width;
+      lastDesktopHeight = window.innerHeight;
+      if ($('#readerView').hidden || state.flipping) return;
+      if (breakpointChanged || widthChanged || desktopHeightChanged) {
+        repaginate(breakpointChanged);
+      }
+    }, 200);
+  });
+
+  // Mobile: khi kéo xuống thì ẩn header, kéo lên thì hiện lại.
+  // Dùng bộ lọc delta để tránh chớp tắt do những dao động cuộn rất nhỏ.
+  const header = $('#siteHeader');
+  const mobileHeaderMedia = window.matchMedia('(max-width:760px)');
+  let lastScrollY = Math.max(0, window.scrollY);
+  let scrollDistance = 0;
+  let scrollDirection = 0;
+  function updateReaderHeader() {
+    const y = Math.max(0, window.scrollY);
+    const delta = y - lastScrollY;
+    lastScrollY = y;
+    if (document.body.classList.contains('reader-open') || !mobileHeaderMedia.matches || y < 65 || !$('#modalBackdrop').hidden) {
+      header.classList.remove('header-hidden');
+      scrollDistance = 0;
+      scrollDirection = 0;
+      return;
+    }
+    if (Math.abs(delta) < 2) return;
+    const direction = Math.sign(delta);
+    if (direction !== scrollDirection) {
+      scrollDirection = direction;
+      scrollDistance = 0;
+    }
+    scrollDistance += Math.abs(delta);
+    if (scrollDistance >= 20) {
+      header.classList.toggle('header-hidden', direction > 0);
+      scrollDistance = 0;
+    }
+  }
+  window.addEventListener('scroll', updateReaderHeader, {passive:true});
+  mobileHeaderMedia.addEventListener('change', updateReaderHeader);
+
+// ======= Sách nói lưu vĩnh viễn trên Vercel Blob + tiến độ trên Neon =======
+const ab={bookId:null,parts:[],mode:'none',status:'missing',part:0,pendingSecond:0,loading:false,generating:false,stop:false,revision:0,lastSave:0};
+const abAudio=$('#abAudio');
+const abDeviceKey='mocthu-audio-device-v1';
+let abDevice=localStorage.getItem(abDeviceKey);
+if(!/^[a-f0-9-]{36}$/.test(abDevice||'')){
+  abDevice=(crypto.randomUUID?crypto.randomUUID(): 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:r&3|8).toString(16);}));
+  localStorage.setItem(abDeviceKey,abDevice);
+}
+const abLocalKey=id=>'mocthu-audio-position-'+id;
+const fmtTime=seconds=>{seconds=Math.max(0,Math.floor(Number(seconds)||0));let m=Math.floor(seconds/60),s=seconds%60;return (m>=60?Math.floor(m/60)+':'+String(m%60).padStart(2,'0'):String(m).padStart(2,'0'))+':'+String(s).padStart(2,'0');};
+async function abGet(url,opt={}){
+  const response=await fetch(url,{credentials:'same-origin',cache:'no-store',...opt});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(data.error||'Máy chủ không phản hồi');
+  return data;
+}
+const abPost=(action,extra={})=>abGet('/api/audio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,bookId:ab.bookId,...extra})});
+function refreshAudiobookAdmin(){
+  $('#abAdmin').hidden=!state.admin || $('#readerView').hidden;
+  if(!state.admin)$('#abAdmin').open=false;
+}
+function stopAudiobookForNavigation(){
+  if(ab.bookId) saveAudioPosition(true);
+  abAudio.pause();abAudio.removeAttribute('src');abAudio.load();
+  ab.revision++;ab.bookId=null;ab.parts=[];ab.part=0;ab.pendingSecond=0;
+  $('#abPlayer').hidden=true;
+}
+function paintAudiobook(data){
+  ab.mode=data.mode;ab.status=data.status;ab.parts=Array.isArray(data.parts)?data.parts:[];
+  const ready=data.status==='ready' && ab.parts.length>0;
+  $('#abType').textContent=ab.mode==='uploaded'?'File MP3/WAV':ab.mode==='generated'?'Gemini TTS':'Chưa có audio';
+  const notice=$('#abNotice');
+  if(ready) notice.textContent='Bản nghe đã được lưu trên máy chủ. Khi quay lại, web sẽ khôi phục vị trí nghe của thiết bị này.';
+  else if(data.status==='generating') notice.textContent='Đang tạo sách nói ('+ab.parts.length+'/'+data.totalParts+' đoạn). Admin có thể tiếp tục tạo.';
+  else if(data.status==='stale') notice.textContent='Nội dung sách đã được chỉnh sửa; bản giọng Gemini cũ cần tạo lại.';
+  else notice.textContent='Cuốn sách này chưa có bản audio. Admin có thể tạo giọng hoặc tải MP3/WAV lên.';
+  $('#abPlayer').hidden=!ready;
+  const progress=$('#abProgress');progress.hidden=!(data.status==='generating');progress.max=data.totalParts||1;progress.value=ab.parts.length;
+  if(data.status==='generating')$('#abAdminStatus').textContent=`Đã lưu ${ab.parts.length}/${data.totalParts} đoạn trên server. Bấm Tạo giọng để tiếp tục.`;
+  refreshAudiobookAdmin();
+}
+async function loadAudiobook(bookId){
+  const revision=++ab.revision; ab.bookId=bookId;ab.part=0;ab.pendingSecond=0;ab.parts=[];
+  $('#abPlayer').hidden=true;$('#abNotice').textContent='Đang tải thông tin sách nói...';refreshAudiobookAdmin();
+  try{
+    const [info,remote]=await Promise.all([
+      abGet('/api/audio?bookId='+encodeURIComponent(bookId)),
+      abGet('/api/audio-progress?bookId='+encodeURIComponent(bookId)+'&deviceId='+encodeURIComponent(abDevice)).catch(()=>null)
+    ]);
+    if(ab.revision!==revision||ab.bookId!==bookId)return;
+    paintAudiobook(info);
+    if(info.status!=='ready'||!info.parts?.length)return;
+    let local=null;try{local=JSON.parse(localStorage.getItem(abLocalKey(bookId))||'null');}catch{}
+    const saved=(remote?.found?remote:local)||{partNo:0,seconds:0};
+    await abSelectPart(Math.min(info.parts.length-1,Math.max(0,Number(saved.partNo)||0)),Number(saved.seconds)||0,false);
+  }catch(e){if(ab.revision===revision)$('#abNotice').textContent='Không tải được audio: '+e.message;}
+}
+async function abSelectPart(index,second=0,autoplay=false){
+  if(!ab.parts[index])return;
+  const clip=ab.parts[index];ab.part=index;ab.pendingSecond=Math.max(0,second);
+  abAudio.pause();abAudio.src=clip.url;abAudio.playbackRate=Number($('#abRate').value)||1;
+  abAudio.load();
+  $('#abSegment').textContent=ab.parts.length>1?`Đoạn ${index+1}/${ab.parts.length}`:'Toàn bộ sách';
+  $('#abPlay').textContent='▶ Phát';
+  if(autoplay){try{await abAudio.play();}catch{$('#abNotice').textContent='Nhấn Phát để nghe đoạn tiếp theo (iOS có thể yêu cầu thao tác khi khóa màn hình).';}}
+}
+function saveAudioPosition(beacon=false){
+  if(!ab.bookId||!ab.parts.length)return;
+  const payload={bookId:ab.bookId,deviceId:abDevice,partNo:ab.part,seconds:Math.max(0,Number(abAudio.currentTime)||0)};
+  try{localStorage.setItem(abLocalKey(ab.bookId),JSON.stringify(payload));}catch{}
+  const body=JSON.stringify(payload);
+  if(beacon && navigator.sendBeacon){navigator.sendBeacon('/api/audio-progress',new Blob([body],{type:'application/json'}));return;}
+  fetch('/api/audio-progress',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});
+}
+abAudio.addEventListener('loadedmetadata',()=>{
+  if(ab.pendingSecond>0 && Number.isFinite(abAudio.duration)){
+    abAudio.currentTime=Math.min(ab.pendingSecond,Math.max(0,abAudio.duration-0.5));
+    ab.pendingSecond=0;
+  }
+  $('#abDuration').textContent=fmtTime(abAudio.duration);
+  $('#abElapsed').textContent=fmtTime(abAudio.currentTime);
+});
+abAudio.addEventListener('timeupdate',()=>{
+  $('#abElapsed').textContent=fmtTime(abAudio.currentTime);
+  if(Number.isFinite(abAudio.duration)&&abAudio.duration>0)$('#abSeek').value=String(Math.min(1000,1000*abAudio.currentTime/abAudio.duration));
+  if(Date.now()-ab.lastSave>12000){ab.lastSave=Date.now();saveAudioPosition();}
+});
+abAudio.addEventListener('play',()=>{$('#abPlay').textContent='⏸ Tạm dừng';});
+abAudio.addEventListener('pause',()=>{$('#abPlay').textContent='▶ Phát';saveAudioPosition();});
+abAudio.addEventListener('ended',async()=>{
+  if(ab.part+1<ab.parts.length){await abSelectPart(ab.part+1,0,true);saveAudioPosition();}
+  else{$('#abPlay').textContent='▶ Nghe lại';saveAudioPosition();}
+});
+$('#abPlay').addEventListener('click',async()=>{
+  if(abAudio.paused){if(abAudio.ended)abAudio.currentTime=0;
+    try{await abAudio.play();}catch(e){$('#abNotice').textContent='Không thể phát: '+e.message;}}
+  else abAudio.pause();
+});
+$('#abSeek').addEventListener('input',e=>{if(Number.isFinite(abAudio.duration))abAudio.currentTime=abAudio.duration*Number(e.target.value)/1000;saveAudioPosition();});
+async function abJump(delta){
+  if(!Number.isFinite(abAudio.duration))return;
+  let target=abAudio.currentTime+delta;
+  if(target<0 && ab.part>0){await abSelectPart(ab.part-1,0,true);return;}
+  if(target>=abAudio.duration && ab.part+1<ab.parts.length){await abSelectPart(ab.part+1,0,true);return;}
+  abAudio.currentTime=Math.max(0,Math.min(target,Math.max(0,abAudio.duration-0.1)));saveAudioPosition();
+}
+$('#abBack').addEventListener('click',()=>abJump(-15));$('#abForward').addEventListener('click',()=>abJump(15));
+$('#abRate').value=localStorage.getItem('mocthu-audio-rate')||'1';
+$('#abRate').addEventListener('change',e=>{abAudio.playbackRate=Number(e.target.value)||1;localStorage.setItem('mocthu-audio-rate',e.target.value);});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveAudioPosition(true);});
+window.addEventListener('pagehide',()=>saveAudioPosition(true));
+async function abRefresh(){
+  if(!ab.bookId)return;
+  const info=await abGet('/api/audio?bookId='+encodeURIComponent(ab.bookId));
+  paintAudiobook(info);
+  if(info.status==='ready'&&info.parts?.length)await abSelectPart(0,0,false);
+}
+$('#abUpload').addEventListener('click',async()=>{
+  if(!state.admin || !ab.bookId)return;
+  const file=$('#abFile').files?.[0];
+  if(!file){$('#abAdminStatus').textContent='Hãy chọn file MP3 hoặc WAV trước.';return;}
+  if(!/\.(mp3|wav)$/i.test(file.name) || file.size>200*1024*1024){$('#abAdminStatus').textContent='Chỉ nhận MP3/WAV tối đa 200MB.';return;}
+  if(ab.generating){$('#abAdminStatus').textContent='Hãy dừng tạo Gemini trước khi upload.';return;}
+  const btn=$('#abUpload');btn.disabled=true;
+  $('#abAdminStatus').textContent='Đang tải file trực tiếp lên Vercel Blob...';
+  try{
+    const {uploadAudioToBlob}=await import('/audio-upload-client.js');
+    const fileResult=await uploadAudioToBlob(ab.bookId,file);
+    await abPost('confirmUpload',{url:fileResult.url});
+    $('#abAdminStatus').textContent='Upload thành công! File đã được lưu trên Vercel Blob.';
+    await abRefresh();
+  }catch(e){$('#abAdminStatus').textContent='Upload thất bại: '+e.message;}
+  finally{btn.disabled=false;}
+});
+$('#abGenerate').addEventListener('click',async()=>{
+  if(!state.admin || !ab.bookId || ab.generating)return;
+  if(ab.mode==='uploaded'&&!confirm('Thay bản MP3/WAV hiện tại bằng audio Gemini chia đoạn?'))return;
+  ab.generating=true;ab.stop=false;$('#abGenerate').disabled=true;$('#abStopGenerate').hidden=false;$('#abStopGenerate').disabled=false;
+  const originBook=ab.bookId;
+  try{
+    const begin=await abPost('start');paintAudiobook(begin);
+    let progress=begin;
+    while(!ab.stop&&originBook===ab.bookId&&progress.status!=='ready'){
+      $('#abAdminStatus').textContent=`Đang tạo và lưu đoạn ${progress.parts.length+1}/${progress.totalParts}. Giữ tab này mở.`;
+      progress=await abPost('next',{voice:$('#abVoice').value});
+      paintAudiobook(progress);
+    }
+    if(progress.status==='ready'){
+      $('#abAdminStatus').textContent='Đã hoàn tất toàn bộ sách nói. Những lượt nghe sau không cần gọi Gemini nữa.';
+      await abRefresh();
+    }else if(ab.stop)$('#abAdminStatus').textContent='Đã dừng. Các đoạn đã tạo vẫn được giữ để tiếp tục sau.';
+  }catch(e){$('#abAdminStatus').textContent='Tạm dừng: '+e.message+' Các đoạn đã lưu vẫn còn; thử lại khi quota cho phép.';}
+  finally{ab.generating=false;$('#abStopGenerate').hidden=true;$('#abGenerate').disabled=false;}
+});
+$('#abStopGenerate').addEventListener('click',()=>{ab.stop=true;$('#abStopGenerate').disabled=true;});
+
+  renderLibrary();initializeServerMode();
+})();
+</script>
+</body>
+</html>

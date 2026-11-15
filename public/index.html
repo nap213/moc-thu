@@ -281,6 +281,32 @@
       }
     }
     @media (prefers-reduced-motion:reduce) { *{scroll-behavior:auto !important;transition:none !important;} .page-flip.forward,.page-flip.backward{animation-duration:.05s;} }
+
+    /* Audiobook phát file thật; audio tạo chỉ dành cho quản trị viên. */
+    #ttsPanel,#geminiPreview { display:none !important; }
+    .ab-panel{width:min(930px,calc(100% - 28px));margin:20px auto 0;padding:18px 20px;border:1px solid rgba(83,109,93,.24);border-radius:12px;background:rgba(255,253,247,.75);color:#354a3d}
+    .ab-title{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:13px;font-weight:700;font-size:14px}
+    .ab-notice{font-size:12px;line-height:1.6;color:#718075;margin:10px 0}
+    .ab-player{display:grid;gap:11px}
+    .ab-time{display:flex;justify-content:space-between;font-size:11px;color:#7d887e;font-variant-numeric:tabular-nums}
+    .ab-seek{width:100%;accent-color:#466653;cursor:pointer}
+    .ab-ctrls{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px}
+    .ab-ctrls button{min-height:44px;min-width:44px;padding:8px 12px;border:1px solid #bfcebf;background:transparent;border-radius:100px;color:#375740;font-weight:700}
+    .ab-ctrls .ab-play{background:#425d4c;color:#fff;border-color:#425d4c;min-width:110px}
+    .ab-ctrls select,.ab-admin select{min-height:38px;border:1px solid #b9c9bb;border-radius:8px;background:transparent;color:inherit;padding:5px 10px}
+    .ab-ctrls label{display:flex;align-items:center;gap:5px;font-size:11px}
+    .ab-admin{margin-top:18px;border-top:1px solid #cdd5ca;padding-top:14px;font-size:12px}
+    .ab-admin summary{cursor:pointer;font-weight:700;padding:8px 0}
+    .ab-admin-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0}
+    .ab-admin button{border:1px solid #bdcbbd;background:transparent;color:inherit;padding:10px 13px;border-radius:8px;font-weight:650}
+    .ab-admin button:disabled{opacity:.45;cursor:not-allowed}
+    .ab-admin input[type=file]{width:100%;font-size:12px;max-width:400px}
+    .ab-admin progress{width:100%;height:13px;accent-color:#506d55}
+    .reader-view[data-theme=dark] .ab-panel{background:#252e2e;color:#dcebdc;border-color:#465451}
+    .reader-view[data-theme=dark] .ab-ctrls button,.reader-view[data-theme=dark] .ab-admin button{border-color:#52635a;color:#dcebdc}
+    .reader-view[data-theme=dark] .ab-ctrls .ab-play{color:#fff}
+    .reader-view[data-theme=dark] .ab-ctrls select,.reader-view[data-theme=dark] .ab-admin select{color:#e2e7dd;background:#252e2e}
+    @media(max-width:760px){.ab-panel{padding:13px 12px;margin-top:14px}.ab-ctrls{gap:7px}.ab-ctrls button{min-width:42px}.ab-title{font-size:13px}}
   </style>
 </head>
 <body>
@@ -336,6 +362,31 @@
         <button class="flip-button nav-arrow" id="nextPage" aria-label="Trang sau"><span class="nav-label">Trang sau</span><span class="nav-icon" aria-hidden="true">→</span></button>
       </div>
     </div>
+
+<section class="ab-panel" id="abPanel" aria-label="Trình phát sách nói">
+  <div class="ab-title"><span>🎧 Sách nói Mộc Thư</span><span id="abType" style="font-size:10px;font-weight:400">MP3 / WAV</span></div>
+  <p class="ab-notice" id="abNotice">Đang kiểm tra bản sách nói...</p>
+  <div class="ab-player" id="abPlayer" hidden>
+    <audio id="abAudio" preload="metadata" playsinline></audio>
+    <input class="ab-seek" id="abSeek" type="range" min="0" max="1000" value="0" aria-label="Tua thời gian nghe" />
+    <div class="ab-time"><span id="abElapsed">00:00</span><span id="abSegment">Phần 1</span><span id="abDuration">00:00</span></div>
+    <div class="ab-ctrls">
+      <button id="abBack" type="button" aria-label="Lùi 15 giây">↶ 15</button>
+      <button id="abPlay" class="ab-play" type="button">▶ Phát</button>
+      <button id="abForward" type="button" aria-label="Tua 15 giây">15 ↷</button>
+      <label>Tốc độ <select id="abRate"><option value="0.75">0.75×</option><option value="1">1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select></label>
+    </div>
+  </div>
+  <details id="abAdmin" class="ab-admin" hidden>
+    <summary>⚙ Quản lý audio (chỉ Admin)</summary>
+    <p>Chọn một trong hai cách: tải file MP3/WAV lên, hoặc để Gemini tạo từng đoạn cho <b>toàn bộ sách</b> và lưu từng đoạn lên Vercel Blob.</p>
+    <div class="ab-admin-actions"><input id="abFile" type="file" accept=".mp3,.wav,audio/mpeg,audio/wav,audio/x-wav" aria-label="Chọn MP3 hoặc WAV" /><button id="abUpload" type="button">↑ Tải audio lên</button></div>
+    <div class="ab-admin-actions"><label>Giọng Gemini <select id="abVoice"><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Charon">Charon</option></select></label><button id="abGenerate" type="button">✨ Tạo giọng cho toàn sách</button><button id="abStopGenerate" type="button" hidden>⏹ Dừng sau đoạn hiện tại</button></div>
+    <progress id="abProgress" value="0" max="1" hidden></progress>
+    <p id="abAdminStatus" class="ab-notice" role="status">Nếu đang tạo dở, bấm tạo lại để tiếp tục. Giữ trang này mở trong lúc xử lý.</p>
+    <p class="ab-notice">Khi chỉnh sửa nội dung sách, audio Gemini cũ sẽ được đánh dấu cần tạo lại. Upload file MP3 là cách ổn định nhất khi muốn nghe liên tục lúc khóa màn hình iPhone.</p>
+  </details>
+</section>
     <section class="tts-panel" id="ttsPanel" aria-label="Đọc sách bằng giọng nói">
       <div class="tts-header"><div class="tts-title">🔊 Nghe sách bằng giọng nói</div><span class="tts-badge">Miễn phí · Giọng đọc thiết bị</span></div>
       <div class="tts-actions">
@@ -642,7 +693,7 @@
     if(geminiAudioUrl) URL.revokeObjectURL(geminiAudioUrl);
     geminiAudioUrl=null;
   }
-  function updateGeminiPanel() { $('#geminiPreview').hidden = !state.admin || $('#readerView').hidden; }
+  function updateGeminiPanel() { $('#geminiPreview').hidden = true; if(typeof refreshAudiobookAdmin==='function')refreshAudiobookAdmin(); }
   function pageTextForGemini() {
     const paragraphText=(state.pages[state.pageIndex] || []).join(' ').replace(/\s+/g,' ').trim();
     const chars=Array.from(paragraphText);
@@ -687,6 +738,7 @@
   $('#geminiGenerate').addEventListener('click', generateGeminiDemo);
 
   function showLibrary() {
+    stopAudiobookForNavigation();
     clearGeminiAudio();
     ttsStop('Nhấn Nghe để đọc từ trang hiện tại.');
     state.flipping=false; $('#readerView').hidden=true; updateGeminiPanel(); $('#libraryView').hidden=false; $('#siteFooter').hidden=false;
@@ -707,6 +759,7 @@
     save(KEYS.prefs,state.prefs);
   }
   function openBook(id) {
+    stopAudiobookForNavigation();
     clearGeminiAudio();
     ttsStop('Nhấn Nghe để đọc từ trang hiện tại.');
     const book=bookById(id); if (!book) return;
@@ -716,6 +769,7 @@
     $('#readerBookTitle').textContent=book.title; $('#readerBookAuthor').textContent=book.author||'Khuyết danh';
     $('#editCurrent').hidden=!state.admin; updateGeminiPanel(); applyPrefs();
     requestAnimationFrame(()=>{ repaginate(true); window.scrollTo({top:0,behavior:'instant'}); });
+    loadAudiobook(id);
     // Recalculate pages after Literata has loaded, preventing clipped text.
     if (document.fonts?.load) {
       document.fonts.load('400 17px Literata').then(()=>{
@@ -1027,6 +1081,164 @@
   }
   window.addEventListener('scroll', updateReaderHeader, {passive:true});
   mobileHeaderMedia.addEventListener('change', updateReaderHeader);
+
+// ======= Sách nói lưu vĩnh viễn trên Vercel Blob + tiến độ trên Neon =======
+const ab={bookId:null,parts:[],mode:'none',status:'missing',part:0,pendingSecond:0,loading:false,generating:false,stop:false,revision:0,lastSave:0};
+const abAudio=$('#abAudio');
+const abDeviceKey='mocthu-audio-device-v1';
+let abDevice=localStorage.getItem(abDeviceKey);
+if(!/^[a-f0-9-]{36}$/.test(abDevice||'')){
+  abDevice=(crypto.randomUUID?crypto.randomUUID(): 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:r&3|8).toString(16);}));
+  localStorage.setItem(abDeviceKey,abDevice);
+}
+const abLocalKey=id=>'mocthu-audio-position-'+id;
+const fmtTime=seconds=>{seconds=Math.max(0,Math.floor(Number(seconds)||0));let m=Math.floor(seconds/60),s=seconds%60;return (m>=60?Math.floor(m/60)+':'+String(m%60).padStart(2,'0'):String(m).padStart(2,'0'))+':'+String(s).padStart(2,'0');};
+async function abGet(url,opt={}){
+  const response=await fetch(url,{credentials:'same-origin',cache:'no-store',...opt});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(data.error||'Máy chủ không phản hồi');
+  return data;
+}
+const abPost=(action,extra={})=>abGet('/api/audio',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,bookId:ab.bookId,...extra})});
+function refreshAudiobookAdmin(){
+  $('#abAdmin').hidden=!state.admin || $('#readerView').hidden;
+  if(!state.admin)$('#abAdmin').open=false;
+}
+function stopAudiobookForNavigation(){
+  if(ab.bookId) saveAudioPosition(true);
+  abAudio.pause();abAudio.removeAttribute('src');abAudio.load();
+  ab.revision++;ab.bookId=null;ab.parts=[];ab.part=0;ab.pendingSecond=0;
+  $('#abPlayer').hidden=true;
+}
+function paintAudiobook(data){
+  ab.mode=data.mode;ab.status=data.status;ab.parts=Array.isArray(data.parts)?data.parts:[];
+  const ready=data.status==='ready' && ab.parts.length>0;
+  $('#abType').textContent=ab.mode==='uploaded'?'File MP3/WAV':ab.mode==='generated'?'Gemini TTS':'Chưa có audio';
+  const notice=$('#abNotice');
+  if(ready) notice.textContent='Bản nghe đã được lưu trên máy chủ. Khi quay lại, web sẽ khôi phục vị trí nghe của thiết bị này.';
+  else if(data.status==='generating') notice.textContent='Đang tạo sách nói ('+ab.parts.length+'/'+data.totalParts+' đoạn). Admin có thể tiếp tục tạo.';
+  else if(data.status==='stale') notice.textContent='Nội dung sách đã được chỉnh sửa; bản giọng Gemini cũ cần tạo lại.';
+  else notice.textContent='Cuốn sách này chưa có bản audio. Admin có thể tạo giọng hoặc tải MP3/WAV lên.';
+  $('#abPlayer').hidden=!ready;
+  const progress=$('#abProgress');progress.hidden=!(data.status==='generating');progress.max=data.totalParts||1;progress.value=ab.parts.length;
+  if(data.status==='generating')$('#abAdminStatus').textContent=`Đã lưu ${ab.parts.length}/${data.totalParts} đoạn trên server. Bấm Tạo giọng để tiếp tục.`;
+  refreshAudiobookAdmin();
+}
+async function loadAudiobook(bookId){
+  const revision=++ab.revision; ab.bookId=bookId;ab.part=0;ab.pendingSecond=0;ab.parts=[];
+  $('#abPlayer').hidden=true;$('#abNotice').textContent='Đang tải thông tin sách nói...';refreshAudiobookAdmin();
+  try{
+    const [info,remote]=await Promise.all([
+      abGet('/api/audio?bookId='+encodeURIComponent(bookId)),
+      abGet('/api/audio-progress?bookId='+encodeURIComponent(bookId)+'&deviceId='+encodeURIComponent(abDevice)).catch(()=>null)
+    ]);
+    if(ab.revision!==revision||ab.bookId!==bookId)return;
+    paintAudiobook(info);
+    if(info.status!=='ready'||!info.parts?.length)return;
+    let local=null;try{local=JSON.parse(localStorage.getItem(abLocalKey(bookId))||'null');}catch{}
+    const saved=(remote?.found?remote:local)||{partNo:0,seconds:0};
+    await abSelectPart(Math.min(info.parts.length-1,Math.max(0,Number(saved.partNo)||0)),Number(saved.seconds)||0,false);
+  }catch(e){if(ab.revision===revision)$('#abNotice').textContent='Không tải được audio: '+e.message;}
+}
+async function abSelectPart(index,second=0,autoplay=false){
+  if(!ab.parts[index])return;
+  const clip=ab.parts[index];ab.part=index;ab.pendingSecond=Math.max(0,second);
+  abAudio.pause();abAudio.src=clip.url;abAudio.playbackRate=Number($('#abRate').value)||1;
+  abAudio.load();
+  $('#abSegment').textContent=ab.parts.length>1?`Đoạn ${index+1}/${ab.parts.length}`:'Toàn bộ sách';
+  $('#abPlay').textContent='▶ Phát';
+  if(autoplay){try{await abAudio.play();}catch{$('#abNotice').textContent='Nhấn Phát để nghe đoạn tiếp theo (iOS có thể yêu cầu thao tác khi khóa màn hình).';}}
+}
+function saveAudioPosition(beacon=false){
+  if(!ab.bookId||!ab.parts.length)return;
+  const payload={bookId:ab.bookId,deviceId:abDevice,partNo:ab.part,seconds:Math.max(0,Number(abAudio.currentTime)||0)};
+  try{localStorage.setItem(abLocalKey(ab.bookId),JSON.stringify(payload));}catch{}
+  const body=JSON.stringify(payload);
+  if(beacon && navigator.sendBeacon){navigator.sendBeacon('/api/audio-progress',new Blob([body],{type:'application/json'}));return;}
+  fetch('/api/audio-progress',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body,keepalive:true}).catch(()=>{});
+}
+abAudio.addEventListener('loadedmetadata',()=>{
+  if(ab.pendingSecond>0 && Number.isFinite(abAudio.duration)){
+    abAudio.currentTime=Math.min(ab.pendingSecond,Math.max(0,abAudio.duration-0.5));
+    ab.pendingSecond=0;
+  }
+  $('#abDuration').textContent=fmtTime(abAudio.duration);
+  $('#abElapsed').textContent=fmtTime(abAudio.currentTime);
+});
+abAudio.addEventListener('timeupdate',()=>{
+  $('#abElapsed').textContent=fmtTime(abAudio.currentTime);
+  if(Number.isFinite(abAudio.duration)&&abAudio.duration>0)$('#abSeek').value=String(Math.min(1000,1000*abAudio.currentTime/abAudio.duration));
+  if(Date.now()-ab.lastSave>12000){ab.lastSave=Date.now();saveAudioPosition();}
+});
+abAudio.addEventListener('play',()=>{$('#abPlay').textContent='⏸ Tạm dừng';});
+abAudio.addEventListener('pause',()=>{$('#abPlay').textContent='▶ Phát';saveAudioPosition();});
+abAudio.addEventListener('ended',async()=>{
+  if(ab.part+1<ab.parts.length){await abSelectPart(ab.part+1,0,true);saveAudioPosition();}
+  else{$('#abPlay').textContent='▶ Nghe lại';saveAudioPosition();}
+});
+$('#abPlay').addEventListener('click',async()=>{
+  if(abAudio.paused){if(abAudio.ended)abAudio.currentTime=0;
+    try{await abAudio.play();}catch(e){$('#abNotice').textContent='Không thể phát: '+e.message;}}
+  else abAudio.pause();
+});
+$('#abSeek').addEventListener('input',e=>{if(Number.isFinite(abAudio.duration))abAudio.currentTime=abAudio.duration*Number(e.target.value)/1000;saveAudioPosition();});
+async function abJump(delta){
+  if(!Number.isFinite(abAudio.duration))return;
+  let target=abAudio.currentTime+delta;
+  if(target<0 && ab.part>0){await abSelectPart(ab.part-1,0,true);return;}
+  if(target>=abAudio.duration && ab.part+1<ab.parts.length){await abSelectPart(ab.part+1,0,true);return;}
+  abAudio.currentTime=Math.max(0,Math.min(target,Math.max(0,abAudio.duration-0.1)));saveAudioPosition();
+}
+$('#abBack').addEventListener('click',()=>abJump(-15));$('#abForward').addEventListener('click',()=>abJump(15));
+$('#abRate').value=localStorage.getItem('mocthu-audio-rate')||'1';
+$('#abRate').addEventListener('change',e=>{abAudio.playbackRate=Number(e.target.value)||1;localStorage.setItem('mocthu-audio-rate',e.target.value);});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveAudioPosition(true);});
+window.addEventListener('pagehide',()=>saveAudioPosition(true));
+async function abRefresh(){
+  if(!ab.bookId)return;
+  const info=await abGet('/api/audio?bookId='+encodeURIComponent(ab.bookId));
+  paintAudiobook(info);
+  if(info.status==='ready'&&info.parts?.length)await abSelectPart(0,0,false);
+}
+$('#abUpload').addEventListener('click',async()=>{
+  if(!state.admin || !ab.bookId)return;
+  const file=$('#abFile').files?.[0];
+  if(!file){$('#abAdminStatus').textContent='Hãy chọn file MP3 hoặc WAV trước.';return;}
+  if(!/\.(mp3|wav)$/i.test(file.name) || file.size>200*1024*1024){$('#abAdminStatus').textContent='Chỉ nhận MP3/WAV tối đa 200MB.';return;}
+  if(ab.generating){$('#abAdminStatus').textContent='Hãy dừng tạo Gemini trước khi upload.';return;}
+  const btn=$('#abUpload');btn.disabled=true;
+  $('#abAdminStatus').textContent='Đang tải file trực tiếp lên Vercel Blob...';
+  try{
+    const {uploadAudioToBlob}=await import('/audio-upload-client.js');
+    const fileResult=await uploadAudioToBlob(ab.bookId,file);
+    await abPost('confirmUpload',{url:fileResult.url});
+    $('#abAdminStatus').textContent='Upload thành công! File đã được lưu trên Vercel Blob.';
+    await abRefresh();
+  }catch(e){$('#abAdminStatus').textContent='Upload thất bại: '+e.message;}
+  finally{btn.disabled=false;}
+});
+$('#abGenerate').addEventListener('click',async()=>{
+  if(!state.admin || !ab.bookId || ab.generating)return;
+  if(ab.mode==='uploaded'&&!confirm('Thay bản MP3/WAV hiện tại bằng audio Gemini chia đoạn?'))return;
+  ab.generating=true;ab.stop=false;$('#abGenerate').disabled=true;$('#abStopGenerate').hidden=false;$('#abStopGenerate').disabled=false;
+  const originBook=ab.bookId;
+  try{
+    const begin=await abPost('start');paintAudiobook(begin);
+    let progress=begin;
+    while(!ab.stop&&originBook===ab.bookId&&progress.status!=='ready'){
+      $('#abAdminStatus').textContent=`Đang tạo và lưu đoạn ${progress.parts.length+1}/${progress.totalParts}. Giữ tab này mở.`;
+      progress=await abPost('next',{voice:$('#abVoice').value});
+      paintAudiobook(progress);
+    }
+    if(progress.status==='ready'){
+      $('#abAdminStatus').textContent='Đã hoàn tất toàn bộ sách nói. Những lượt nghe sau không cần gọi Gemini nữa.';
+      await abRefresh();
+    }else if(ab.stop)$('#abAdminStatus').textContent='Đã dừng. Các đoạn đã tạo vẫn được giữ để tiếp tục sau.';
+  }catch(e){$('#abAdminStatus').textContent='Tạm dừng: '+e.message+' Các đoạn đã lưu vẫn còn; thử lại khi quota cho phép.';}
+  finally{ab.generating=false;$('#abStopGenerate').hidden=true;$('#abGenerate').disabled=false;}
+});
+$('#abStopGenerate').addEventListener('click',()=>{ab.stop=true;$('#abStopGenerate').disabled=true;});
+
   renderLibrary();initializeServerMode();
 })();
 </script>

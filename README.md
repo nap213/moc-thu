@@ -1,90 +1,82 @@
-# MỘC THƯ — BẢN VERCEL + NEON 📚
+# Mộc Thư — Audiobook lưu trên máy chủ (bản tích hợp 2026)
 
-Đây là **phiên bản dành cho GitHub + Vercel**, không dùng `server.js` và **không lưu sách bằng file JSON trên Vercel**. Sách được lưu bền vững trong **Neon Postgres** nên khi tắt trình duyệt, quay lại, đổi máy hoặc cập nhật/deploy lại website, sách vẫn tồn tại **miễn là website kết nối tới cùng database và dữ liệu database chưa bị xóa**.
+Bộ source cho **GitHub → Vercel + Neon + Vercel Blob + Gemini Flash TTS**. Giữ nguyên trang đọc sách, đăng nhập Admin và database sách cũ; thay khu vực TTS thử nghiệm bằng trình phát audiobook.
 
-> Lưu ý: tên người dùng / mật khẩu mặc định KHÔNG nằm trong code triển khai. Hãy thêm biến môi trường tại Vercel. Tên `nap213` được phép, nhưng **đừng dùng `nap213` làm mật khẩu trên web công khai**, vì rất dễ bị người khác đoán.
+## Các chức năng
 
-## 1. Upload lên GitHub (không cần gõ lệnh)
+- Người đọc: phát / tạm dừng, tua ±15 giây, kéo thanh thời gian, tốc độ 0.75×–2×.
+- Admin: upload một file MP3/WAV có sẵn cho mỗi cuốn, hoặc bấm **Tạo giọng cho toàn sách**. Một file upload có thể lớn hơn 4,5 MB vì được đẩy trực tiếp từ trình duyệt tới Vercel Blob.
+- Gemini: sách được chia thành các đoạn khoảng 800 ký tự và tạo lần lượt. **Mỗi đoạn WAV được lưu vào Blob ngay** và metadata được ghi vào Neon. Nếu lỗi/hết quota hoặc đóng tab, những đoạn đã tạo vẫn còn, admin mở lại sách và bấm tạo để tiếp tục.
+- Khi audio sẵn sàng, người đọc chỉ thấy trình phát, không thấy form tạo giọng hoặc upload.
+- Tiến độ nghe: được ghi vào Neon theo **ID ẩn danh của thiết bị/trình duyệt**, sao lưu trong localStorage. Có thể khôi phục khi mở lại cùng trình duyệt. Chuyển máy hoặc xóa dữ liệu trình duyệt sẽ mất ID thiết bị cũ.
+- Sách do Gemini tạo là **danh sách nhiều file WAV**, phát nối tiếp; file upload là **một MP3/WAV liên tục**. Với iPhone khóa màn hình, MP3 upload ổn định hơn; Safari có thể ngừng tự chuyển giữa các đoạn WAV. Không thể cam kết phát nền hoàn toàn.
 
-1. Tải file ZIP, **giải nén** ra một thư mục trên máy.
-2. Mở https://github.com/new, đặt tên repository ví dụ `moc-thu`, chọn Private hoặc Public, nhấn **Create repository**.
-3. Tại trang repository mới, chọn **uploading an existing file** (hoặc Add file → Upload files).
-4. Kéo **toàn bộ các file/thư mục bên trong thư mục đã giải nén** lên (đặc biệt là `public/`, `api/`, `lib/`, `package.json`, `vercel.json`). Không upload nguyên file `.zip` và không bỏ hết vào một thư mục con.
-5. Nhấn **Commit changes**. Kiểm tra repository có các thư mục `public`, `api`, `lib` ở ngay cấp ngoài cùng.
+## 1. Sao lưu trước khi cập nhật
 
-Nếu trình duyệt không nhận kéo-thả folder, dùng GitHub Desktop (File → Add local repository → Publish repository) hoặc Git CLI.
+Trước khi thay source, mở Mộc Thư → đăng nhập admin → xuất thư viện JSON làm bản sao. Trong GitHub tạo một branch/commit dự phòng. **Không xóa Neon database** hiện tại.
 
-## 2. Kết nối Vercel
+## 2. Tạo Vercel Blob store
 
-1. Vào https://vercel.com/new, đăng nhập bằng GitHub.
-2. Chọn **Import Git Repository** → repository `moc-thu` → Import.
-3. Đặt Project Name `moc-thu` hoặc tên tùy ý.
-4. **Framework Preset: Other**. **Root Directory: `./`** (repo root). **Build Command: để trống**, không nhập `npm start`/`node server.js`. **Output Directory: mặc định `public`**.
-5. Nhấn Deploy để tạo project. Lần deploy đầu có thể chưa tải được sách vì chưa gắn database; hoàn tất bước 3 rồi Redeploy.
+1. Vào Vercel → project Mộc Thư → **Storage** → **Create Database** → **Blob**.
+2. Chọn **Public** (vì sách này được phép nghe công khai) và liên kết store với project, môi trường Production.
+3. Vercel tự cấp biến `BLOB_READ_WRITE_TOKEN` cho project. Không đưa token vào GitHub.
+4. Đừng chọn Private để dùng thẳng file URL từ audio player, vì cần một API proxy và xác thực riêng.
 
-## 3. Thêm database Neon cho dữ liệu sách
+Hobby hiện được bao gồm hạn mức 1 GB storage, 10 GB data transfer/tháng và hạn mức operations. WAV không nén nên truyện dài sẽ tốn dung lượng nhanh.
 
-1. Vào project trên Vercel → tab **Storage** hoặc **Marketplace** → **Create Database** → chọn **Neon Postgres**.
-2. Chọn gói phù hợp (có thể là Free), tên database và vùng máy chủ.
-3. **Connect/Link** database Neon với **chính project** `moc-thu` và môi trường **Production**. Kiểm tra ở Vercel Project → Settings → Environment Variables có biến `DATABASE_URL` được Neon thêm vào.
-4. Nếu không có `DATABASE_URL`, hãy nối lại integration (hoặc thêm thủ công chuỗi kết nối Neon vào env `DATABASE_URL`; KHÔNG đưa chuỗi này lên GitHub).
-5. **Không cần tạo bảng bằng SQL**: API sẽ tự tạo bảng `mocthu_library` lần đầu được gọi; có sẵn 3 cuốn sách ví dụ để thử.
+## 3. Cấu hình Vercel Environment Variables
 
-Vercel hiện kết nối Postgres thông qua Marketplace; không tìm “Vercel Postgres” cũ.
+Giữ các biến **cũ**:
+- `DATABASE_URL` (Neon)
+- `ADMIN_USER`
+- `ADMIN_PASS`
+- `SESSION_SECRET` (ít nhất 32 ký tự)
 
-## 4. Cấu hình mật khẩu admin
+Thêm/giữ:
+- `GEMINI_API_KEY` (lấy từ https://aistudio.google.com/api-keys) — chỉ cần để dùng Gemini; upload MP3 không cần.
+- `BLOB_READ_WRITE_TOKEN` (Vercel Blob tự thêm khi liên kết store).
 
-Trong Vercel Project → **Settings → Environment Variables**, thêm các biến sau vào **Production**:
+**Đừng chia sẻ API key/token trong chat hoặc commit lên GitHub.**
 
-| Name | Value (ví dụ) |
-|------|---------------|
-| `ADMIN_USER` | `nap213` |
-| `ADMIN_PASS` | **Mật khẩu riêng rất mạnh**, không nên đặt `nap213` khi public |
-| `SESSION_SECRET` | Chuỗi ngẫu nhiên khó đoán, dài **ít nhất 32 ký tự** (ví dụ generate bằng password manager / `openssl rand -hex 32`) |
-| `DATABASE_URL` | Neon tạo tự động — không cần thêm lần nữa nếu đã có |
+## 4. Upload source và deploy
 
-Để dùng đúng tài khoản demo cũ, có thể tạm đặt `ADMIN_PASS=nap213` lúc thử, nhưng **hãy đổi trước khi gửi link public**. Tuyệt đối không chia sẻ mật khẩu database hoặc `SESSION_SECRET`.
+Giải nén ZIP và đưa **toàn bộ nội dung** vào thư mục gốc repository `moc-thu` (không upload nguyên file ZIP). Giữ đúng:
 
-## 5. Redeploy + kiểm tra
-
-1. Vercel → Project → **Deployments** → với deployment mới nhất chọn **Redeploy** (hoặc commit thay đổi lên GitHub để tạo deploy mới).
-2. Mở `https://ten-du-an.vercel.app/api/session`. Kết quả phải tương tự `{"server":true,"admin":false}`.
-3. Mở `https://ten-du-an.vercel.app/api/books`. Kết quả là JSON có `books` và 3 cuốn ví dụ. Nếu báo lỗi DATABASE_URL thì xem lại bước 3.
-4. Mở trang chính. Chọn **Đăng nhập Admin**, đăng nhập bằng `ADMIN_USER` + `ADMIN_PASS` đã thiết lập → **Thêm sách** → dán nội dung → lưu.
-5. Đóng tab, mở lại bằng trình duyệt hoặc thiết bị khác: sách vừa tạo vẫn nằm trong thư viện chung.
-6. Mở chế độ ẩn danh/điện thoại để xác minh độc giả không cần đăng nhập vẫn đọc được.
-
-## Cấu trúc project
-
-```text
-public/index.html           giao diện Mộc Thư (lật trang, tối/sáng, chỉnh cỡ chữ)
-api/session.js              kiểm tra phiên admin
-api/login.js                đăng nhập admin
-api/logout.js               đăng xuất admin
-api/books.js                lấy/lưu thư viện sách qua Neon
-lib/shared.js               kết nối DB, đăng nhập & kiểm tra dữ liệu
-lib/seed.js                 3 cuốn sách mẫu chỉ seed một lần
-package.json                thư viện Neon được Vercel tự cài
-vercel.json                 cấu hình Vercel Function
-.env.example                danh sách tên biến (KHÔNG chứa secrets thật)
+```
+api/audio.js
+api/audio-progress.js
+api/audio-upload.js
+api/books.js
+lib/audio.js
+lib/shared.js
+public/index.html
+public/audio-upload-client.js
+package.json
+vercel.json
 ```
 
-## Câu hỏi thường gặp
+Repo cũng chứa các file API cũ. `npm install` được Vercel tự chạy khi deploy. `package.json` thêm `@vercel/blob`.
 
-- **Sách có bị mất khi tắt web không?** Không. Dữ liệu nằm ở Neon Postgres, không phải RAM của Vercel hay localStorage của admin.
-- **Khi đổi code trên GitHub, sách có mất không?** Không, miễn là vẫn dùng cùng `DATABASE_URL` và không xóa database.
-- **Khi xóa cache trình duyệt?** Nội dung sách không mất. Tuy nhiên trang đang đọc và chế độ màu là cài đặt cá nhân lưu ở `localStorage`, có thể mất nếu xóa dữ liệu trình duyệt.
-- **Vercel hiện lỗi 500 / không thấy sách?** Kiểm tra `DATABASE_URL`, logs trong Vercel Functions, Neon đang hoạt động, Redeploy sau khi cập nhật env.
-- **Đăng nhập thất bại?** Đối chiếu `ADMIN_USER`, `ADMIN_PASS`, `SESSION_SECRET`, kiểm tra ở môi trường Production, Redeploy.
-- **Đã tạo sách nhưng không thấy ở link Preview?** Nếu Neon tự tạo nhánh DB riêng cho Preview, nội dung của nhánh Preview và Production có thể khác nhau. Hãy test trên URL Production.
-- **Có giới hạn độ dài không?** Có. API hiện gửi cả thư viện trong một lần tải/lưu: tổng dữ liệu sách phải < khoảng 3,5 MB và mỗi sách < khoảng 2,5 MB. Vercel Functions có giới hạn payload 4,5 MB. Với thư viện quá lớn cần nâng cấp mô hình API tải/lưu từng sách riêng.
-- **Có an toàn khi dùng `nap213/nap213`?** Không. Đó là mật khẩu demo. Đổi thành mật khẩu mạnh ngay khi đưa web lên Internet.
-- **Có lưu dữ liệu mãi mãi không?** Sẽ lưu qua các lần deploy và đóng/mở trình duyệt, nhưng vẫn phụ thuộc vào tài khoản, gói dịch vụ và tình trạng của Neon. Nên sao lưu bằng chức năng **Xuất toàn bộ sách (JSON)** trong trang admin.
+**Lưu ý:** file `public/audio-upload-client.js` tải SDK trong trình duyệt từ `esm.sh`. Nếu mạng của admin chặn esm.sh, upload sẽ không hoạt động; cần bundle thư viện `@vercel/blob/client` vào dự án bằng công cụ build.
 
-## Nguồn chính thức
+Vercel → Project → Deployments → chọn deploy mới. Kiểm tra logs nếu lỗi và dùng **Redeploy** sau khi thêm biến môi trường.
 
-- https://vercel.com/docs/git/vercel-for-github
-- https://vercel.com/docs/marketplace-storage
-- https://vercel.com/marketplace/neon
-- https://vercel.com/docs/functions/runtimes/node-js
-- https://vercel.com/docs/functions/limitations
+## 5. Sử dụng
+
+1. Mở web → đăng nhập Admin → chọn một cuốn.
+2. Kéo xuống **Sách nói Mộc Thư**, mở **Quản lý audio (chỉ Admin)**.
+3. **Nhanh và đáng tin cậy nhất:** chọn MP3 hoặc WAV, nhấn **Tải audio lên**. Tối đa 200 MB/file theo giới hạn ứng dụng này. MP3 là lựa chọn tốt cho iPhone và giảm dung lượng lưu trữ.
+4. **Gemini:** nhấn **Tạo giọng cho toàn sách**, giữ tab mở cho đến khi hoàn tất. Khi hết quota / timeout, có thể bấm lại ngày hôm sau để tiếp tục. Mỗi request có timeout ~54 giây; hệ thống bảo vệ giới hạn 40 đoạn/ngày. Google có thể áp giới hạn thấp hơn.
+5. Thoát Admin rồi mở lại sách bằng điện thoại; giờ chỉ còn trình phát và việc nghe không kích hoạt tạo lại âm thanh.
+6. Đang nghe dở, nhấn Pause hoặc đóng tab. Tiến độ tự lưu mỗi ~12 giây và vào thời điểm thoát/ẩn tab, đồng thời lưu trên Neon. Sau đó mở lại trên **cùng trình duyệt** để tiếp tục.
+
+## Điều kiện và hạn chế kỹ thuật
+
+- Tạo hàng trăm đoạn Gemini tốn rất nhiều request, dung lượng WAV và có thể vượt mức Free Tier. Chỉ nên thử trước với sách ngắn; với tiểu thuyết dài nên tạo MP3 bên ngoài rồi upload.
+- Chưa có worker xử lý nền chuyên dụng. Khi tạo Gemini **phải giữ trang Admin mở**; đóng trình duyệt dừng vòng lặp gửi đoạn mới, nhưng không làm mất các đoạn đã tạo. Muốn tiếp tục hoàn toàn tự động sau khi đóng trang cần thêm job queue/worker.
+- Không ghép mọi đoạn Gemini thành **một** file MP3; phiên bản này phát playlist WAV nối tiếp. Việc tự phát đoạn tiếp theo khi iOS đã khóa màn hình không được bảo đảm. Muốn phát xuyên suốt ổn định nên upload **một MP3**.
+- Với cập nhật văn bản sách, audio Gemini cũ bị đánh dấu `stale` và không phát tới khi admin tạo lại. MP3 đã upload vẫn được giữ nguyên cho tới khi thay file.
+- File audio cũ bị thay thế không bị tự động xóa khỏi Blob store: admin nên dọn thủ công tại Vercel Blob khi cần tránh hao dung lượng.
+- Nội dung sách gửi Gemini Free Tier có thể chịu quy định sử dụng dữ liệu để cải thiện sản phẩm của Google.
+- Tiến độ gắn với ID thiết bị ẩn danh trong localStorage, **không đồng bộ giữa các thiết bị**. Có thể đọc tiếp sau khi đóng web, miễn dữ liệu trình duyệt không bị xóa.
+- Không thể kiểm tra cuộc gọi Gemini/Neon/Blob thực tế khi chưa có thông tin kết nối của project.
