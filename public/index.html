@@ -198,6 +198,21 @@
     .reader-view[data-theme="dark"] .tts-select select { background:#202929; border-color:#52635a; color:#e0e8df; }
     .reader-view[data-theme="dark"] .tts-help { border-color:#756543; background:#393527; color:#f5dca0; }
     @media (max-width:760px) { .tts-panel{width:calc(100% - 22px);margin-top:16px;padding:13px 12px}.tts-header{align-items:flex-start}.tts-title{font-size:12px}.tts-actions{gap:8px}.tts-select{flex:1 1 125px}.tts-select select{min-width:0;width:100%;max-width:100%} }
+
+    /* Gemini AI TTS - test riêng cho admin, không làm thay đổi kích thước trang giấy */
+    .gemini-preview { width:min(930px,calc(100% - 32px));margin:14px auto 0;padding:16px 20px;border:1px solid rgba(93,111,95,.3);border-radius:12px;background:rgba(255,253,247,.62);color:#394d3f; }
+    .gemini-preview h3 { margin:0 0 7px;font-size:14px; }
+    .gemini-preview p { margin:6px 0 10px;font-size:11px;line-height:1.7; }
+    .gemini-preview textarea { display:block;width:100%;min-height:94px;resize:vertical;padding:10px 12px;border:1px solid #bdcbbd;border-radius:7px;background:#fffdf7;color:#334b3b;font:12px/1.65 var(--sans); }
+    .gemini-preview .gemini-actions {display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0;}
+    .gemini-preview button {border:0;border-radius:7px;padding:10px 14px;background:#445f4f;color:white;font-size:11px;font-weight:700;}
+    .gemini-preview button:disabled {opacity:.6;cursor:wait;}
+    .gemini-preview audio {display:block;width:100%;margin:10px 0;}
+    .gemini-preview a {color:#365b47;font-size:11px;font-weight:600;}
+    .reader-view[data-theme="dark"] .gemini-preview {background:#252e2e;color:#dcebdc;border-color:#465451;}
+    .reader-view[data-theme="dark"] .gemini-preview textarea {background:#202929;border-color:#52635a;color:#e0e8df;}
+    .reader-view[data-theme="dark"] .gemini-preview a {color:#c5e2c6;}
+    @media (max-width:760px) { .gemini-preview {width:calc(100% - 22px);padding:13px 12px;} }
     /* modal */
     .modal-backdrop { position:fixed; inset:0; background:rgba(21,30,25,.55); backdrop-filter:blur(5px); display:grid; place-items:center; z-index:100; padding:20px; }
     .modal { width:min(440px,100%); max-height:calc(100dvh - 30px); overflow:auto; background:#faf8f2; color:#32382f; border-radius:9px; box-shadow:0 25px 90px rgba(0,0,0,.26); padding:30px; }
@@ -336,6 +351,19 @@
       <p class="tts-status" id="ttsStatus" role="status" aria-live="polite">Nhấn Nghe để đọc từ trang hiện tại. Tự lật trang khi đọc xong.</p>
       <p class="tts-help" id="ttsHelp" hidden>⚠ Không có giọng đọc tiếng Việt (<strong>vi-VN</strong>) mà trang web có thể sử dụng. Trên Windows: mở <strong>Settings → Time & language → Language & region → Add a language</strong>, cài <strong>Vietnamese</strong> cùng tính năng <strong>Text-to-speech</strong> nếu được cung cấp. Sau đó đóng/mở lại Chrome hoặc Edge và bấm <strong>↻ Kiểm tra giọng</strong>. Một số giọng trong nút “Đọc to” của Edge không xuất hiện trong danh sách giọng dành cho website. <a href="https://support.microsoft.com/en-us/accessibility/windows/narrator/appendix-a-supported-languages-and-voices" target="_blank" rel="noopener noreferrer">Hướng dẫn Microsoft</a>.</p>
     </section>
+    <section class="gemini-preview" id="geminiPreview" hidden aria-label="Thử giọng đọc Gemini AI cho admin">
+      <h3>✨ Thử Gemini Flash TTS (chỉ Admin)</h3>
+      <p>Thử tạo file WAV tiếng Việt cho đoạn ngắn ở trang hiện tại. Dùng Gemini API Free Tier (theo hạn mức project), tối đa 8 lần thử/ngày. File chỉ ở trong phiên trình duyệt này, <strong>chưa tự lưu vào sách</strong>.</p>
+      <label for="geminiText" style="font-size:11px;font-weight:700;">Đoạn văn để tạo giọng</label>
+      <textarea id="geminiText" maxlength="240" placeholder="Mở một trang sách rồi bấm Lấy nội dung trang..." spellcheck="false"></textarea>
+      <div class="gemini-actions">
+        <button id="geminiFromPage" type="button">↻ Lấy nội dung trang</button>
+        <button id="geminiGenerate" type="button">✨ Tạo giọng Gemini</button>
+      </div>
+      <p id="geminiStatus" role="status" aria-live="polite">Bản thử nghiệm: cần đăng nhập Admin và cấu hình GEMINI_API_KEY trên Vercel.</p>
+      <audio controls id="geminiAudio" preload="none" hidden aria-label="Phát đoạn đọc Gemini"></audio>
+      <a id="geminiDownload" href="#" download="mocthu-gemini.wav" hidden>↓ Tải file âm thanh WAV</a>
+    </section>
     <div class="reader-hint">Nhấn phím ← → hoặc chạm vào nút hai bên để lật trang · Vị trí đọc được lưu tự động</div>
     <button class="reader-admin-action" id="editCurrent" title="Chỉnh sửa cuốn sách" hidden aria-label="Chỉnh sửa cuốn sách"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4L16.5 3.5Z"/></svg><span>Chỉnh sửa sách này</span></button>
   </main>
@@ -443,6 +471,7 @@
       <button class="read-btn" data-open-id="${escapeHTML(book.id)}">${state.progress[book.id]>0?'Đọc tiếp':'Mở sách'} <span>↗</span></button></article>`).join('')
       : `<div class="no-books"><h2>Thư viện còn trống</h2><p>Đăng nhập admin và tạo cuốn sách đầu tiên nhé.</p></div>`;
     $('#adminButtonText').textContent=state.admin?'Quản lý Admin':'Đăng nhập Admin';
+    updateGeminiPanel();
   }
 
   // Text-to-Speech miễn phí. Nội dung sách không được ghi thành file audio hoặc gửi tới API của website.
@@ -604,9 +633,63 @@
     ttsNext(tts.token);
   }
 
+  // Thử nghiệm Gemini: admin tự gửi một đoạn ngắn, không dùng Web Speech API.
+  let geminiAudioUrl = null;
+  function clearGeminiAudio() {
+    const a=$('#geminiAudio');
+    a.pause(); a.removeAttribute('src'); a.load(); a.hidden=true;
+    $('#geminiDownload').hidden=true;
+    if(geminiAudioUrl) URL.revokeObjectURL(geminiAudioUrl);
+    geminiAudioUrl=null;
+  }
+  function updateGeminiPanel() { $('#geminiPreview').hidden = !state.admin || $('#readerView').hidden; }
+  function pageTextForGemini() {
+    const paragraphText=(state.pages[state.pageIndex] || []).join(' ').replace(/\s+/g,' ').trim();
+    const chars=Array.from(paragraphText);
+    if(chars.length <= 240) return paragraphText;
+    const excerpt=chars.slice(0,240).join('');
+    const split=excerpt.lastIndexOf(' ');
+    return split>150 ? excerpt.slice(0,split) : excerpt;
+  }
+  function takeGeminiTextFromPage() {
+    $('#geminiText').value=pageTextForGemini();
+    $('#geminiStatus').textContent='Đã lấy đoạn đầu của trang '+(state.pageIndex+1)+' (có thể chỉnh sửa trước khi tạo giọng).';
+  }
+  async function generateGeminiDemo() {
+    if(!state.admin) return toast('Cần đăng nhập Admin để thử giọng AI.');
+    const text=$('#geminiText').value.normalize('NFC').trim();
+    if(!text || [...text].length>240){$('#geminiStatus').textContent='Nhập tối đa 240 ký tự tiếng Việt.';return;}
+    ttsStop('Đã tạm dừng giọng thiết bị để nghe Gemini.');
+    clearGeminiAudio();
+    const btn=$('#geminiGenerate');btn.disabled=true;
+    $('#geminiStatus').textContent='Đang tạo file WAV bằng Gemini. Không cần cài giọng nói trên máy...';
+    try {
+      const response=await fetch('/api/tts-demo',{
+        method:'POST',credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({text,voice:'Kore'})
+      });
+      if(!response.ok){
+        const data=await response.json().catch(()=>({}));
+        throw new Error(data.error||('HTTP '+response.status));
+      }
+      const blob=await response.blob();
+      if(blob.size<44)throw new Error('File audio bị trống.');
+      geminiAudioUrl=URL.createObjectURL(blob);
+      const audio=$('#geminiAudio');audio.src=geminiAudioUrl;audio.hidden=false;
+      const link=$('#geminiDownload');link.href=geminiAudioUrl;link.hidden=false;
+      $('#geminiStatus').textContent='Đã tạo xong! Nhấn ▶ trên trình phát để nghe. Có thể thử khóa màn hình iPhone trong lúc audio đang phát.';
+      // Safari may block autoplay after a slow fetch. Let the user tap Play on audio controls.
+    } catch(e) { $('#geminiStatus').textContent='Lỗi: '+e.message; }
+    finally { btn.disabled=false; }
+  }
+  $('#geminiFromPage').addEventListener('click', takeGeminiTextFromPage);
+  $('#geminiGenerate').addEventListener('click', generateGeminiDemo);
+
   function showLibrary() {
+    clearGeminiAudio();
     ttsStop('Nhấn Nghe để đọc từ trang hiện tại.');
-    state.flipping=false; $('#readerView').hidden=true; $('#libraryView').hidden=false; $('#siteFooter').hidden=false;
+    state.flipping=false; $('#readerView').hidden=true; updateGeminiPanel(); $('#libraryView').hidden=false; $('#siteFooter').hidden=false;
     $('#editCurrent').hidden=true; document.body.classList.remove('reader-open');
     $('#siteHeader').classList.remove('header-hidden');
     $('#libraryNav').classList.add('active'); $('#continueNav').classList.remove('active');
@@ -624,13 +707,14 @@
     save(KEYS.prefs,state.prefs);
   }
   function openBook(id) {
+    clearGeminiAudio();
     ttsStop('Nhấn Nghe để đọc từ trang hiện tại.');
     const book=bookById(id); if (!book) return;
     state.currentId=id; state.flipping=false;
     $('#libraryView').hidden=true; $('#readerView').hidden=false; $('#siteFooter').hidden=true; document.body.classList.add('reader-open');
     $('#libraryNav').classList.remove('active'); $('#continueNav').classList.add('active');
     $('#readerBookTitle').textContent=book.title; $('#readerBookAuthor').textContent=book.author||'Khuyết danh';
-    $('#editCurrent').hidden=!state.admin; applyPrefs();
+    $('#editCurrent').hidden=!state.admin; updateGeminiPanel(); applyPrefs();
     requestAnimationFrame(()=>{ repaginate(true); window.scrollTo({top:0,behavior:'instant'}); });
     // Recalculate pages after Literata has loaded, preventing clipped text.
     if (document.fonts?.load) {
@@ -721,6 +805,7 @@
     const old=state.pageIndex, next=old+direction*step();
     if (next<0||next>=state.pages.length) return false;
     if(!auto && tts.active) ttsStop('Đã dừng đọc vì bro lật trang thủ công.');
+    clearGeminiAudio();
     state.flipping=true;
     const mobile=isMobile(); const scene=$('#bookShell');
     let front,back,frontSide,backSide;
@@ -743,7 +828,7 @@
     setTimeout(complete,1000);
     return true;
   }
-  function jumpSpread(n) { if(state.flipping)return; if(tts.active)ttsStop('Đã dừng đọc vì bro chuyển trang.'); state.pageIndex=normalizeIndex(Number(n)*step());renderSpread();rememberProgress(); }
+  function jumpSpread(n) { if(state.flipping)return; clearGeminiAudio(); if(tts.active)ttsStop('Đã dừng đọc vì bro chuyển trang.'); state.pageIndex=normalizeIndex(Number(n)*step());renderSpread();rememberProgress(); }
   function openModal(html,wide=false) { $('#modalContainer').classList.toggle('wide',wide);$('#modalContainer').innerHTML=html;$('#modalBackdrop').hidden=false;setTimeout(()=>$('#modalContainer input:not([type=file]),#modalContainer textarea,#modalContainer button').focus(),20); }
   function closeModal() {$('#modalBackdrop').hidden=true;$('#modalContainer').innerHTML='';}
   function modalHeader(title,subtitle) {return `<div class="modal-top"><div><h2 id="modalHeading">${title}</h2><p class="modal-subtitle">${subtitle}</p></div><button class="close-btn" data-close aria-label="Đóng">×</button></div>`;}
@@ -858,7 +943,7 @@
           valid=response.ok;
         } catch {toast('Không thể kết nối máy chủ.');return;}
       } else valid=false;
-      if(valid){state.admin=true;closeModal();renderLibrary();$('#editCurrent').hidden=!state.currentId||$('#readerView').hidden;toast('Đã đăng nhập tài khoản admin.');}
+      if(valid){state.admin=true;closeModal();renderLibrary();updateGeminiPanel();$('#editCurrent').hidden=!state.currentId||$('#readerView').hidden;toast('Đã đăng nhập tài khoản admin.');}
       else $('#loginError').hidden=false;
     }
     if(e.target.id==='editorForm'){e.preventDefault();await saveBookFromEditor();}
@@ -875,7 +960,7 @@
         try { const r=await fetch('/api/logout',{method:'POST',credentials:'same-origin'});if(!r.ok)throw Error(); }
         catch {toast('Không thể đăng xuất trên máy chủ.');return;}
       }
-      state.admin=false;closeModal();renderLibrary();$('#editCurrent').hidden=true;toast('Đã đăng xuất.');
+      state.admin=false;closeModal();clearGeminiAudio();updateGeminiPanel();renderLibrary();$('#editCurrent').hidden=true;toast('Đã đăng xuất.');
     }
     if(target.id==='deleteBook'&&state.editingId)deleteBook(state.editingId);
   });
